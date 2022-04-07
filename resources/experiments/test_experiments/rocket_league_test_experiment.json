@@ -1,0 +1,23 @@
+{
+  "experiment_name" : "Rocket League Test",
+  "config_file" : "rocket_league_config.json",
+  "num_trials_per_adjustment" : 5,
+  "steps_per_save" : 20,
+
+  "config_adjustments" :
+  {
+    "adjustment_1":
+    {
+      "key_set": ["policy_optimizer", "batch_size"],
+      "range": {"begin": 1000, "end": 20000, "increment": 4750},
+      "full_reset_per_increment": false
+    }
+  },
+
+  "terminal_conditions":
+  {
+    "max_epoch" : -100,
+    "max_timesteps" : 5e6,
+    "policy_reward" : -1
+  }
+}

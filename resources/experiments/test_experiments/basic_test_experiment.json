@@ -1,0 +1,23 @@
+{
+  "experiment_name" : "mujoco_walker2d",
+  "config_file" : "walker2d_config.json",
+  "num_trials_per_adjustment" : 2,
+  "steps_per_save" : 20,
+
+  "config_adjustments" :
+  {
+    "adjustment_1":
+    {
+      "key_set": ["policy_optimizer", "batch_size"],
+      "range": {"begin": 500, "end": 500, "increment": 100},
+      "full_reset_per_increment": false
+    }
+  },
+
+  "terminal_conditions":
+  {
+    "max_epoch" : -100,
+    "max_timesteps" : 1e5,
+    "policy_reward" : -1
+  }
+}

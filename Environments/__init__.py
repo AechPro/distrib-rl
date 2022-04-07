@@ -1,0 +1,1 @@
+from .Custom import Novelty, NoveltyMaze, wordle
