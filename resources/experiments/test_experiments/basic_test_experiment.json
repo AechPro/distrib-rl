@@ -17,7 +17,7 @@
   "terminal_conditions":
   {
     "max_epoch" : -100,
-    "max_timesteps" : 1e9,
+    "max_timesteps" : 1e5,
     "policy_reward" : -1
   }
 }

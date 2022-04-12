@@ -3,7 +3,7 @@
 if __name__ == "__main__":
     from Environments.Custom.RocketLeague import RLGymFactory
 
-    env_id = 1
+    env_id = 0
     cfg = {
           "rlgym":
           {
@@ -22,19 +22,16 @@ if __name__ == "__main__":
 
     env = RLGymFactory.build_rlgym_from_config(cfg)
 
-    try:
-        while True:
-            env.reset()
-            done = False
-            ep_rew = 0
-            n_steps = 0
+    while True:
+        env.reset()
+        done = False
+        ep_rew = 0
+        n_steps = 0
 
-            while not done:
-                act = env.action_space.sample()
-                obs, rew, done, _ = env.step(act)
-                ep_rew += rew
-                n_steps += 1
+        while not done:
+            act = env.action_space.sample()
+            obs, rew, done, _ = env.step(act)
+            ep_rew += rew
+            n_steps += 1
 
-            print(ep_rew, "|", n_steps)
-    except:
-        env.close()
+        print(ep_rew, "|", n_steps)

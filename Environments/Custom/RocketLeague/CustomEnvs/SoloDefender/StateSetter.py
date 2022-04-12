@@ -4,7 +4,7 @@ import numpy as np
 
 
 class SoloDefenderStateSetter(StateSetter):
-    GOAL_CORNERS = [(-893, 5120, 642)]# top right?
+    GOAL_CORNERS = [(-893, 5120, 642)] # top right?
     def __init__(self):
         super().__init__()
         self.rng = np.random.RandomState(123)
@@ -27,9 +27,9 @@ class SoloDefenderStateSetter(StateSetter):
         velocity_vector = np.subtract(end_point, start_point)
 
         # set speed
-        velocity_vector /= np.linalg.norm(velocity_vector)
-        velocity_vector *= self.rng.uniform(common_values.BALL_MAX_SPEED/8, common_values.BALL_MAX_SPEED/2)
-
+        # velocity_vector /= np.linalg.norm(velocity_vector)
+        # velocity_vector *= self.rng.uniform(common_values.BALL_MAX_SPEED/8, common_values.BALL_MAX_SPEED/2)
+        velocity_vector *= 1
         state_wrapper.ball.set_pos(*start_point)
         state_wrapper.ball.set_lin_vel(*velocity_vector)
 

@@ -6,14 +6,11 @@ from Strategy import StrategyOptimizer
 from Utils import AdaptiveOmega
 from PolicyOptimization.Learners import PPO, REINFORCE
 import gym
-import torch.optim
-from Environments.Custom import MinAtarWrapper
 import numpy as np
 
 
 def build_vars(cfg):
     cfg["rng"] = np.random.RandomState(cfg["seed"])
-    #env = MinAtarWrapper(cfg_json["env_id"])
 
     env_name = cfg["env_id"].lower()
     if "rocket" in env_name:

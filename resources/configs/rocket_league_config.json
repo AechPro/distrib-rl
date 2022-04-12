@@ -156,11 +156,11 @@
     "game_speed": 100,
     "self_play": false,
     "spawn_opponents": false,
-    "action_parser": 1,
-    "obs_builder": 1,
-    "terminal_conditions": 1,
-    "reward_function": 1,
-    "state_setter": 1
+    "action_parser": 2,
+    "obs_builder": 2,
+    "terminal_conditions": 2,
+    "reward_function": 2,
+    "state_setter": 2
   },
 
   "lr_adjuster":
