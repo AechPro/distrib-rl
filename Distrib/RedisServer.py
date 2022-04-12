@@ -23,6 +23,7 @@ class RedisServer(object):
         self.available_timesteps = 0
 
         self.last_sps_measure = time.time()
+        self.accumulated_sps = 0
         self.steps_per_second = 0
 
     def connect(self, clear_existing=False, new_server_instance=True):
@@ -130,7 +131,6 @@ class RedisServer(object):
             in_space, out_space = msgpack.unpackb(data)
         return in_space, out_space
 
-
     def _update_buffer(self):
         new_returns = helpers.atomic_pop_all(self.redis, RedisKeys.CLIENT_EXPERIENCE_KEY)
         collected_timesteps = 0
@@ -153,13 +153,13 @@ class RedisServer(object):
             del ret
 
     def _update_sps(self, collected_timesteps):
-        alpha = 0.9
+        self.accumulated_sps += collected_timesteps
         elapsed = time.time() - self.last_sps_measure
-        if elapsed == 0:
-            return
 
-        self.steps_per_second = alpha * self.steps_per_second + (1 - alpha) * collected_timesteps / elapsed
-        self.last_sps_measure = time.time()
+        if elapsed >= 1:
+            self.steps_per_second = 0.9 * self.steps_per_second + 0.1 * self.accumulated_sps / elapsed
+            self.accumulated_sps = 0
+            self.last_sps_measure = time.time()
 
     def disconnect(self):
         if self.redis is not None:

@@ -11,8 +11,8 @@ import traceback
 
 
 def main():
-    # experiment_path = "resources/experiments/test_experiments/basic_test_experiment.json"
-    experiment_path = "resources/experiments/test_experiments/rocket_league_test_experiment.json"
+    experiment_path = "resources/experiments/test_experiments/basic_test_experiment.json"
+    # experiment_path = "resources/experiments/test_experiments/rocket_league_test_experiment.json"
 
     server = Server()
     experiment_manager = ExperimentManager(server)
