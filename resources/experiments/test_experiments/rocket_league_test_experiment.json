@@ -1,15 +1,15 @@
 {
-  "experiment_name" : "Rocket League Test",
+  "experiment_name" : "Rocket League goalie testing",
   "config_file" : "rocket_league_config.json",
   "num_trials_per_adjustment" : 10,
-  "steps_per_save" : 20,
+  "steps_per_save" : 100,
 
   "config_adjustments" :
   {
     "adjustment_1":
     {
-      "key_set": ["policy_optimizer", "batch_size"],
-      "range": {"begin": 1000, "end": 20000, "increment": 4750},
+      "key_set": ["policy_optimizer", "gamma"],
+      "range": {"begin": 0.991, "end": 0.995, "increment": 0.001},
       "full_reset_per_increment": false
     }
   },

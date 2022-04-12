@@ -2,6 +2,7 @@ from rlgym.utils.gamestates import GameState
 from rlgym.utils.terminal_conditions.common_conditions import TimeoutCondition, GoalScoredCondition
 from rlgym.utils.terminal_conditions import TerminalCondition
 
+
 class SoloDefenderTerminalConditions(TerminalCondition):
     def __init__(self):
         super().__init__()

@@ -1,4 +1,4 @@
-from Environments.Custom.RocketLeague.CustomEnvs import Default, SoloDefender
+from Environments.Custom.RocketLeague.CustomEnvs import Default, SoloDefender, Goalie
 import rlgym
 from rlgym.utils.terminal_conditions.common_conditions import TimeoutCondition, GoalScoredCondition
 from rlgym.utils.action_parsers import DiscreteAction
@@ -16,7 +16,6 @@ def build_rlgym_from_config(config):
     reward_fn = DefaultReward()
     terminal_conditions = [TimeoutCondition(225), GoalScoredCondition()]
 
-
     ap = cfg["action_parser"]
     ob = cfg["obs_builder"]
     ss = cfg["state_setter"]
@@ -27,17 +26,21 @@ def build_rlgym_from_config(config):
         action_parser = Default.DefaultActionParser()
     elif ap == 1:
         action_parser = SoloDefender.SoloDefenderActionParser()
-
+    elif ap == 2:
+        action_parser = Goalie.DefaultActionParser()
     if ob == 0:
         obs_builder = Default.DefaultObsBuilder()
     elif ob == 1:
         obs_builder = SoloDefender.SoloDefenderObsBuilder()
+    elif ob == 2:
+        obs_builder = Goalie.DefaultObsBuilder()
 
     if ss == 0:
         state_setter = Default.DefaultStateSetter()
     elif ss == 1:
         state_setter = SoloDefender.SoloDefenderStateSetter()
-
+    elif ss == 2:
+        state_setter = Goalie.DefaultStateSetter()
     if rf == 0:
         reward_fn = Default.DefaultRewardFunction()
     elif rf == 1:
