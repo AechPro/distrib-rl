@@ -16,36 +16,20 @@ def build_rlgym_from_config(config):
     reward_fn = DefaultReward()
     terminal_conditions = [TimeoutCondition(225), GoalScoredCondition()]
 
+    env_id = int(cfg["env_id"])
 
-    ap = cfg["action_parser"]
-    ob = cfg["obs_builder"]
-    ss = cfg["state_setter"]
-    rf = cfg["reward_function"]
-    tc = cfg["terminal_conditions"]
-
-    if ap == 0:
+    if env_id == 0:
         action_parser = Default.DefaultActionParser()
-    elif ap == 1:
-        action_parser = SoloDefender.SoloDefenderActionParser()
-
-    if ob == 0:
         obs_builder = Default.DefaultObsBuilder()
-    elif ob == 1:
-        obs_builder = SoloDefender.SoloDefenderObsBuilder()
-
-    if ss == 0:
         state_setter = Default.DefaultStateSetter()
-    elif ss == 1:
-        state_setter = SoloDefender.SoloDefenderStateSetter()
-
-    if rf == 0:
         reward_fn = Default.DefaultRewardFunction()
-    elif rf == 1:
-        reward_fn = SoloDefender.SoloDefenderRewardFunction()
-
-    if tc == 0:
         terminal_conditions = [Default.DefaultTerminalConditions()]
-    elif tc == 1:
+
+    elif env_id == 1:
+        action_parser = SoloDefender.SoloDefenderActionParser()
+        obs_builder = SoloDefender.SoloDefenderObsBuilder()
+        state_setter = SoloDefender.SoloDefenderStateSetter()
+        reward_fn = SoloDefender.SoloDefenderRewardFunction()
         terminal_conditions = [SoloDefender.SoloDefenderTerminalConditions()]
 
     return rlgym.make(

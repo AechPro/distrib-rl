@@ -26,11 +26,11 @@ class BaseAgent(object):
 
             # ts.action and ts.log_prob will be filled here
             action = self._get_policy_action(policy, obs, ts)
-
             next_obs, rew, done, _ = env.step(action)
+
             self.current_ep_rew += rew
             ts.reward = rew
-            ts.obs = obs.copy()
+            ts.obs = obs
             ts.done = 1 if done else 0
             trajectory.register_timestep(ts)
             cumulative_timesteps += 1
@@ -39,7 +39,7 @@ class BaseAgent(object):
                 self.ep_rewards.append(self.current_ep_rew)
                 self.current_ep_rew = 0
 
-                trajectory.final_obs = next_obs.copy()
+                trajectory.final_obs = next_obs
                 trajectories.append(trajectory)
                 trajectory = Trajectory()
 
@@ -50,14 +50,12 @@ class BaseAgent(object):
                num_seconds is not None and time.time() - start_time >= num_seconds or \
                num_eps is not None and len(trajectories) >= num_eps:
                 break
-
-        if not done:
-            self.leftover_obs = next_obs.copy()
-        else:
-            self.leftover_obs = None
+        # print((time.perf_counter()-start_time)/cumulative_timesteps," | ",act_time/cumulative_timesteps," | ",step_time/cumulative_timesteps)
+            # env.render()
+        self.leftover_obs = next_obs
 
         if len(trajectory.obs) > 0:
-            trajectory.final_obs = next_obs.copy()
+            trajectory.final_obs = next_obs
             trajectories.append(trajectory)
 
         return trajectories

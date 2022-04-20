@@ -7,14 +7,22 @@ from rlgym.utils import common_values
 class SoloDefenderRewardFunction(RewardFunction):
     def __init__(self):
         self.y_threshold = -5120 + 900
-        self.vel_rew = VelocityPlayerToBallReward()
+        self.has_touched = False
 
     def reset(self, initial_state: GameState):
-        self.vel_rew.reset(initial_state)
+        self.has_touched = False
 
     def get_reward(self, player: PlayerData, state: GameState, previous_action: np.ndarray) -> float:
         rew = 0
-        rew += self.vel_rew.get_reward(player, state, previous_action) / common_values.CAR_MAX_SPEED
+        if player.ball_touched:
+            self.has_touched = True
+
+        if not self.has_touched:
+            bpos = state.ball.position
+            ppos = player.car_data.position
+            rew -= abs(bpos[0] - ppos[0] + state.ball.linear_velocity[0]) / (10*common_values.SIDE_WALL_X)
+
         if state.ball.position[1] < self.y_threshold:
             rew = -1
+
         return rew

@@ -1,1 +1,1 @@
-from .Custom import Novelty, NoveltyMaze, wordle
+from .Custom import Novelty, NoveltyMaze, wordle, TwitchChatBetting

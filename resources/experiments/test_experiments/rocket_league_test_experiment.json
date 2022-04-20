@@ -2,7 +2,7 @@
   "experiment_name" : "Rocket League Test",
   "config_file" : "rocket_league_config.json",
   "num_trials_per_adjustment" : 10,
-  "steps_per_save" : 20,
+  "steps_per_save" : 50,
 
   "config_adjustments" :
   {

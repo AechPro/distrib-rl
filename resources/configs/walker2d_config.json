@@ -71,23 +71,29 @@
       {
         "type": "ff",
         "extra": null,
-        "num_nodes": 64,
-        "activation_function": "tanh"
+        "num_nodes": 128,
+        "activation_function": "prelu"
       },
       "ff2":
       {
         "type": "ff",
         "extra": null,
-        "num_nodes": 64,
-        "activation_function": "tanh"
+        "num_nodes": 128,
+        "activation_function": "prelu"
       },
-
+      "ff3":
+      {
+        "type": "ff",
+        "extra": null,
+        "num_nodes": 128,
+        "activation_function": "prelu"
+      },
       "output":
       {
           "type": "diag_out",
           "extra": [3,3,3,3,3,2,2,2],
           "num_nodes": 21,
-          "activation_function": "tanh"
+          "activation_function": "map_cont"
       }
     }
   },
@@ -127,18 +133,18 @@
     "value_updates_per_batch": 10
   },
 
-  "adaptive_omega":
+  "experience_replay":
+  {
+    "max_buffer_size": 5000
+  },
+
+ "adaptive_omega":
   {
     "mean_threshold": 1.035,
     "reward_history_size": 40,
     "min_value": 0.0,
     "max_value": 1,
     "default": 0.0
-  },
-
-  "experience_replay":
-  {
-    "max_buffer_size": 10000
   },
 
   "strategy":

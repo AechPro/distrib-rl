@@ -18,9 +18,9 @@ class SoloDefenderStateSetter(StateSetter):
         start_point = (0, -5120/2, 642.775/2)
         end_point = common_values.BLUE_GOAL_CENTER
 
-        x_offset = self.rng.uniform(-893 + common_values.BALL_RADIUS, 893 - common_values.BALL_RADIUS)
-        y_offset = 800
-        z_offset = self.rng.uniform(-602.775 / 2, 602.775 / 2)
+        x_offset = self.rng.uniform(-893/2 + common_values.BALL_RADIUS, 893 - common_values.BALL_RADIUS)
+        y_offset = 1000
+        z_offset = self.rng.uniform(-602.775 / 4, 602.775 / 4)
         end_point = np.add(end_point, (x_offset, y_offset, z_offset))
 
         # point at center of goal
@@ -36,7 +36,8 @@ class SoloDefenderStateSetter(StateSetter):
     def _spawn_car(self, state_wrapper: StateWrapper):
         x,y,_ = common_values.BLUE_GOAL_CENTER
         z = 0
-        y += 120
+        y += 700
+        x -= 893
         state_wrapper.cars[0].set_pos(x,y,z)
-        state_wrapper.cars[0].set_rot(yaw=self.rng.uniform(0, np.pi*2))
+        state_wrapper.cars[0].set_rot(yaw=0)#self.rng.uniform(0, np.pi*2))
         state_wrapper.cars[0].boost = 100

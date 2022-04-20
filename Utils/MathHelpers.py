@@ -1,7 +1,8 @@
 import scipy.signal
 import numpy as np
 import torch
-from Policies.FeedForward import ContinuousFF
+import functools
+
 
 def compute_torch_normal_entropy(sigma):
     return (0.5 + 0.5*np.log(2*np.pi) + torch.log(sigma)).sum(dim=-1).item()
@@ -23,16 +24,18 @@ def compute_discounted_future_sum(arr, discount):
     return scipy.signal.lfilter([1], [1, float(-discount)], arr[::-1], axis=0)[::-1]
 
 
+@functools.lru_cache()
 def apply_affine_map(value, from_min, from_max, to_min, to_max):
-        if from_max == from_min or to_max == to_min:
-            return to_min
+    if from_max == from_min or to_max == to_min:
+        return to_min
 
-        mapped = (value - from_min) * (to_max - to_min) / (from_max - from_min)
-        mapped += to_min
+    mapped = (value - from_min) * (to_max - to_min) / (from_max - from_min)
+    mapped += to_min
 
-        return mapped
+    return mapped
 
 
+@functools.lru_cache()
 def map_policy_to_continuous_action(policy_output):
     n = policy_output.shape[-1]//2
     if len(policy_output.shape) == 1:

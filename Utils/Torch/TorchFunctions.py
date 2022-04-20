@@ -13,10 +13,17 @@ class ClampedLinear(nn.Module):
     def forward(self, x):
         return torch.clamp(x, min=-1, max=1)
 
-class MapContinuousStd(nn.Module):
+class MapContinuousToAction(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.tanh = nn.Tanh()
+
     def forward(self, x):
-        #Map from [-1, 1] to [0.1, 1.1]
-        return 0.1 + 0.5 * (1 + x)
+        x = self.tanh(x)
+        n = x.shape[-1] // 2
+
+        # condensed version of calling MathHelpers.map_policy_to_action(tanh(x))
+        return x[..., :n], 0.55 + 0.45*x[..., n:]
 
 class MultiDiscreteSB3(nn.Module):
     def __init__(self, bins):

@@ -1,6 +1,6 @@
 import numpy as np
 import torch.nn as nn
-from Utils.Torch.TorchFunctions import ClampedLinear, Flatten
+from Utils.Torch.TorchFunctions import *
 #from Policies.PyTorch.Recurrent import LSTMModule
 
 def build_from_json(model_json, input_shape, output_shape, channels_first=True):
@@ -155,6 +155,9 @@ def parse_and_build_activation(layer_json):
 
     elif t in ('tanh',):
         function = nn.Tanh()
+
+    elif t in ('continuous_map', "cont_map", "map_cont", "mapped_continuous"):
+        function = MapContinuousToAction()
 
     elif t in ("softmax", "soft max"):
         function = nn.Softmax(dim=-1)

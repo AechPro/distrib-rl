@@ -3,22 +3,15 @@
 if __name__ == "__main__":
     from Environments.Custom.RocketLeague import RLGymFactory
 
-    env_id = 1
-    cfg = {
-          "rlgym":
+    cfg = {"rlgym":
           {
             "tick_skip": 8,
             "team_size": 1,
             "game_speed": 2,
             "self_play": False,
             "spawn_opponents": False,
-            "action_parser": env_id,
-            "obs_builder": env_id,
-            "terminal_conditions": env_id,
-            "reward_function": env_id,
-            "state_setter": env_id
-          },
-    }
+            "env_id":1
+          }}
 
     env = RLGymFactory.build_rlgym_from_config(cfg)
 

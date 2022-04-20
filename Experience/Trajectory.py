@@ -57,15 +57,7 @@ class Trajectory(object):
             # self.rewards = rews.tolist()
 
         if gamma is not None:
-            try:
-                self.future_rewards = RLMath.compute_discounted_future_sum(self.rewards, gamma).tolist()
-            except:
-                import traceback
-                traceback.print_exc()
-                print()
-                print(self.rewards)
-                print()
-                print(gamma)
+            self.future_rewards = RLMath.compute_discounted_future_sum(self.rewards, gamma).tolist()
 
         if values is not None:
             self.values = [arg for arg in values]

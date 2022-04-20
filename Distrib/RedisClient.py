@@ -25,7 +25,7 @@ class RedisClient(object):
         red.lpush(key, encoded_data)
         red.ltrim(key, 0, self.max_queue_size)
 
-    def get_obs_stats(self):
+    def get_reward_stats(self):
         mean = self.redis.get(RedisKeys.RUNNING_REWARD_MEAN_KEY)
         std = self.redis.get(RedisKeys.RUNNING_REWARD_STD_KEY)
 

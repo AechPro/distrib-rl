@@ -5,6 +5,7 @@ from Experience import ExperienceReplay
 from Strategy import StrategyOptimizer
 from Utils import AdaptiveOmega
 from PolicyOptimization.Learners import *
+import Environments.Custom
 import gym
 import numpy as np
 import random

@@ -31,6 +31,7 @@ class Client(object):
 
     @torch.no_grad()
     def collect(self):
+        t1 = time.perf_counter()
         n_sec = 1
         value_estimator = self.value_net
         exp_manager = self.exp_manager
@@ -40,7 +41,7 @@ class Client(object):
         lmbda = self.cfg["policy_optimizer"]["gae_lambda"]
 
         trajectories = agent.gather_timesteps(self.policy, self.env, num_seconds=n_sec)
-        reward_stats = client.get_obs_stats()
+        reward_stats = client.get_reward_stats()
 
         trajectories_to_send = []
         total_timesteps = 0
@@ -56,6 +57,8 @@ class Client(object):
         if len(agent.ep_rewards) > 0:
             rews = msgpack.packb(agent.ep_rewards)
             client.push_data(RedisKeys.CLIENT_POLICY_REWARD_KEY, rews, encoded=True)
+
+        print("transmitted {} in {:7.5f}".format(total_timesteps, time.perf_counter() - t1))
 
     def update_models(self):
         policy_params, value_params, strategy_frames, strategy_history, success = self.client.get_latest_update()

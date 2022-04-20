@@ -100,17 +100,15 @@ class ExperienceReplay(object):
         n = len(acts) // batch_size
 
         for i in range(n):
-            batch = Trajectory()
-            start = i*batch_size
+            start = i * batch_size
             stop = start + batch_size
-
-            batch.actions = acts[start:stop]
-            batch.log_probs = probs[start:stop]
-            batch.obs = obs[start:stop]
-            batch.values = vals[start:stop]
-            batch.advantages = adv[start:stop]
-
-            batches.append(batch)
+            batches.append([
+                acts[start:stop],
+                probs[start:stop],
+                obs[start:stop],
+                vals[start:stop],
+                adv[start:stop]
+            ])
 
         return batches
 

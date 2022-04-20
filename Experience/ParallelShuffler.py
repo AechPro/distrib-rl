@@ -49,7 +49,6 @@ class ParallelShuffler(MPFProcess):
         buffer = []
         ts_collected, fps = self.exp_manager.get_timesteps_as_batches(self.ts_per_update, self.batch_size)
 
-
         for batch in self.exp_manager.experience.get_all_batches_shuffled(self.batch_size):
             buffer.append(batch)
 

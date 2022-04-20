@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import time
 
 
 class PPO(object):
@@ -28,7 +29,7 @@ class PPO(object):
         ent_coef = self.cfg["policy_optimizer"]["entropy_coef"]
         epochs = self.cfg["policy_optimizer"]["n_epochs"]
         max_kl = self.cfg["policy_optimizer"]["max_kl"]
-        batch_size = self.cfg["policy_optimizer"]["batch_size"]
+        device = self.device
 
         n_updates = 0
         n_iterations = 0
@@ -37,16 +38,17 @@ class PPO(object):
         mean_val_loss = 0
         clip_fractions = []
 
-        # t1 = time.time()
+        t1 = time.time()
         for epoch in range(epochs):
-            # batches = exp.get_all_batches()
-            batches = exp.get_all_batches_shuffled(batch_size)
+            batches = exp.get_all_batches_shuffled()
             for batch in batches:
-                acts = batch.actions
-                obs = batch.obs
-                advantages = batch.advantages
-                old_probs = batch.log_probs
-                target_values = batch.values
+                acts, old_probs, obs, target_values, advantages = batch
+
+                acts = acts.to(device)
+                obs = obs.to(device)
+                advantages = advantages.to(device)
+                old_probs = old_probs.to(device)
+                target_values = target_values.to(device)
 
                 vals = value_net.get_output(obs).view_as(target_values)
 
@@ -100,15 +102,19 @@ class PPO(object):
         mean_entropy /= n_iterations
         mean_divergence /= n_iterations
         mean_val_loss /= n_iterations
+        mean_clip = np.mean(clip_fractions)
+        lr_report = 0
 
         self.n_epochs += 1
-
         report = {
-                 "n_updates":n_updates,
-                 "mean_entropy":mean_entropy,
-                 "mean_kl":mean_divergence,
-                 "val_loss":mean_val_loss,
-                 "clip_fraction":np.mean(clip_fractions)
+                    "batch_time": (time.time() - t1) / n_iterations,
+                    "n_batches" : n_iterations,
+                    "n_updates":n_updates,
+                    "mean_entropy":mean_entropy,
+                    "mean_kl":mean_divergence,
+                    "val_loss":mean_val_loss,
+                    "clip_fraction":mean_clip,
+                    "learning_rate":lr_report
                   }
 
         return report
