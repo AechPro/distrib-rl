@@ -1,4 +1,4 @@
-from Environments.Custom.RocketLeague.CustomEnvs import Default, SoloDefender
+from Environments.Custom.RocketLeague.CustomEnvs import Default, SoloDefender, Kickoff
 import rlgym
 from rlgym.utils.terminal_conditions.common_conditions import TimeoutCondition, GoalScoredCondition
 from rlgym.utils.action_parsers import DiscreteAction
@@ -31,6 +31,13 @@ def build_rlgym_from_config(config):
         state_setter = SoloDefender.SoloDefenderStateSetter()
         reward_fn = SoloDefender.SoloDefenderRewardFunction()
         terminal_conditions = [SoloDefender.SoloDefenderTerminalConditions()]
+    
+    elif env_id == 2:
+        action_parser = Kickoff.NectoActionParser()
+        obs_builder = Kickoff.KickoffObsBuilder()
+        state_setter = Kickoff.KickoffStateSetter()
+        reward_fn = Kickoff.KickoffRewardFunction()
+        terminal_conditions = [Kickoff.KickoffTerminalConditions()]
 
     return rlgym.make(
         game_speed=cfg["game_speed"],

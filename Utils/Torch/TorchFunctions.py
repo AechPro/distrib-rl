@@ -21,8 +21,12 @@ class MapContinuousToAction(nn.Module):
     def forward(self, x):
         x = self.tanh(x)
         n = x.shape[-1] // 2
-
+        
         # condensed version of calling MathHelpers.map_policy_to_action(tanh(x))
+        # [0.01, 0.6]
+        # return x[..., :n], 0.305 + 0.295 * x[..., n:]
+
+        # [0.01, 1]
         return x[..., :n], 0.55 + 0.45*x[..., n:]
 
 class MultiDiscreteSB3(nn.Module):

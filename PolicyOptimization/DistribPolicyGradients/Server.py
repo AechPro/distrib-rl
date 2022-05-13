@@ -1,6 +1,7 @@
 from PolicyOptimization.DistribPolicyGradients import Configurator
 from MARL import OpponentSelector
 from Distrib import RedisServer, RedisKeys
+from Utils import ConfigLoader
 from Experience import ParallelExperienceManager
 import time
 import numpy as np
@@ -120,6 +121,11 @@ class Server(object):
 
     def save_progress(self):
         print("SAVING TO BASE",self.base_directory)
+
+        cfg_path = os.path.join(self.base_directory, "config.json")
+        if not os.path.exists(cfg_path):
+            ConfigLoader.save_config(cfg_path, self.cfg)
+
         models_dir = os.path.join(self.base_directory, "models")
         optim_dir = os.path.join(self.base_directory, "grad_optimizer")
 
@@ -129,7 +135,6 @@ class Server(object):
         self.value_gradient_optimizer.save(optim_dir, "value_gradient_optimizer_{}".format(self.epoch))
 
     def set_base_dir(self, directory):
-        import os
         if not os.path.exists(directory):
             os.makedirs(directory)
         print("SETTING BASE DIR",directory)
@@ -219,9 +224,11 @@ class Server(object):
         self.policy_reward = None
         self.epoch_info = {}
 
+
         self.opponent_selector.submit_policy(self.policy.get_trainable_flat(force_update=True))
         self.strategy_optimizer.update()
         self.update_server(self.epoch)
+
 
         print("sending ready signal...")
         self.server.signal_ready()

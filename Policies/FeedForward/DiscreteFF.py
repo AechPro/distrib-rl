@@ -9,8 +9,10 @@ class DiscreteFF(Policy):
     def __init__(self, cfg, device):
         super().__init__(cfg, device)
 
-    def get_action(self, obs):
+    def get_action(self, obs, deterministic=False):
         probs = self.get_output(obs)
+        if deterministic:
+            return probs.cpu().numpy().argmax(), 0
 
         distribution = Categorical(probs=probs)
 

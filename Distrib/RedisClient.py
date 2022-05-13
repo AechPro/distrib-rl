@@ -4,6 +4,7 @@ from Distrib import RedisKeys, RedisServer
 import msgpack
 import time
 import pyjson5 as json
+import os
 
 
 class RedisClient(object):
@@ -13,7 +14,10 @@ class RedisClient(object):
         self.max_queue_size = 0
 
     def connect(self):
-        self.redis = redis.Redis()
+        ip = os.environ.get("REDIS_HOST", default='localhost')
+        port = os.environ.get("REDIS_PORT", default=6379)
+
+        self.redis = redis.Redis(host=ip, port=port)
 
     def push_data(self, key, data, encoded=False):
         red = self.redis

@@ -71,22 +71,15 @@
       {
         "type": "ff",
         "extra": null,
-        "num_nodes": 128,
-        "activation_function": "prelu"
+        "num_nodes": 64,
+        "activation_function": "tanh"
       },
       "ff2":
       {
         "type": "ff",
         "extra": null,
-        "num_nodes": 128,
-        "activation_function": "prelu"
-      },
-      "ff3":
-      {
-        "type": "ff",
-        "extra": null,
-        "num_nodes": 128,
-        "activation_function": "prelu"
+        "num_nodes": 64,
+        "activation_function": "tanh"
       },
       "output":
       {
@@ -100,8 +93,8 @@
 
   "policy_gradient_optimizer":
   {
-    "type": "dsgd",
-    "step_size":  0.0015
+    "type": "torch adam",
+    "step_size":  1e-4
   },
 
   "novelty_gradient_optimizer":
@@ -122,7 +115,7 @@
     "gamma": 0.99,
     "max_kl": 1.0,
     "n_epochs": 10,
-    "batch_size": 500,
+    "batch_size": 64,
     "clip_range": 0.2,
     "gae_lambda": 0.95,
     "entropy_coef": 0.0,
@@ -135,7 +128,7 @@
 
   "experience_replay":
   {
-    "max_buffer_size": 5000
+    "max_buffer_size": 20480
   },
 
  "adaptive_omega":
@@ -159,7 +152,7 @@
   "lr_adjuster":
   {
     "clip_target": 0.2,
-    "rate": 1.1,
+    "rate": 1.25,
     "max_lr": 1,
     "min_lr": 1e-7
   }

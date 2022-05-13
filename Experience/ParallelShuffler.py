@@ -9,7 +9,7 @@ class ParallelShuffler(MPFProcess):
         self.server = None
         self.total_ts = 0
         self.ts_per_update = 0
-        self.time_lib = 0
+        self.sleep_fn = 0
         self.batch_size = 0
         self.buffer = []
 
@@ -17,9 +17,9 @@ class ParallelShuffler(MPFProcess):
         import numpy
         from Experience import DistribExperienceManager
         from Distrib import RedisServer
-        import time
+        from time import sleep
 
-        self.time_lib = time
+        self.sleep_fn = sleep
 
         self.task_checker.wait_for_initialization(header="initialization_data")
         self.cfg = self.task_checker.latest_data.copy()
@@ -39,7 +39,7 @@ class ParallelShuffler(MPFProcess):
 
     def publish(self):
         if not self.results_publisher.is_empty():
-            self.time_lib.sleep(0.01)
+            self.sleep_fn(0.01)
             return
 
         publisher = self.results_publisher

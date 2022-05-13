@@ -12,7 +12,7 @@ class MultiDiscreteFF(Policy):
         self.multi_discrete = None
         self.splits = (3,) * 5 + (2,) * 3
 
-    def get_action(self, obs):
+    def get_action(self, obs, deterministic=False):
         obs = [obs]
         logits = self.get_output(obs)
 

@@ -6,6 +6,7 @@ import msgpack_numpy as m
 m.patch()
 import time
 import pyjson5 as json
+import os
 
 
 class RedisServer(object):
@@ -27,7 +28,9 @@ class RedisServer(object):
         self.steps_per_second = 0
 
     def connect(self, clear_existing=False, new_server_instance=True):
-        self.redis = redis.Redis()
+        ip = os.environ.get("REDIS_HOST", default='localhost')
+        port = os.environ.get("REDIS_PORT", default=6379)
+        self.redis = redis.Redis(host=ip, port=port)
         if clear_existing:
             self.redis.flushall()
 

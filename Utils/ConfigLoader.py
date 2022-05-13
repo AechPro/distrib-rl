@@ -23,3 +23,12 @@ def load_config(file_path=None, file_name=None):
             config["device"] = "cpu"
 
     return config
+
+def save_config(file_path, cfg):
+    rng = cfg["rng"]
+    del cfg["rng"]
+    data = json.dumps(cfg)
+    with open(file_path, 'w') as f:
+        f.write(data)
+    print("Saved config to {}".format(file_path))
+    cfg["rng"] = rng

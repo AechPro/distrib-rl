@@ -6,6 +6,8 @@ from trueskill import rate_1vs1, Rating
 from Distrib import RedisKeys
 from redis import Redis
 import time
+import os
+
 
 class OpponentSelector(object):
     def __init__(self, cfg):
@@ -14,10 +16,16 @@ class OpponentSelector(object):
         self.player_skills = []
         self.policy_skill = Rating(100)
         self.known_policies = []
-        self.redis = Redis()
+
+        ip = os.environ.get("REDIS_HOST", default='localhost')
+        port = os.environ.get("REDIS_PORT", default=6379)
+        self.redis = Redis(host=ip, port=port)
 
     def get_opponent(self):
         encoded = self.redis.get(RedisKeys.MARL_CURRENT_OPPONENT_KEY)
+        if encoded is None:
+            return None, -1
+
         decoded = msgpack.unpackb(encoded)
         return decoded
 
@@ -65,6 +73,9 @@ class OpponentSelector(object):
 
         for result in results:
             opponent_num, victory = result
+            if opponent_num >= len(self.player_skills):
+                continue
+
             if victory:
                 self.policy_skill, opponent = rate_1vs1(self.policy_skill, self.player_skills[opponent_num])
             else:

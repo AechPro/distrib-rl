@@ -38,7 +38,7 @@ class MARLAgent(object):
             actions = []
             ts = [Timestep() for _ in range(n_agents)]
             for i in range(n_agents):
-                action, log_prob = policies[i].get_action(obs[i])
+                action, log_prob = policies[i].get_action(obs[i], deterministic=False)
                 ts[i].action = action
                 ts[i].log_prob = log_prob
                 actions.append(action)

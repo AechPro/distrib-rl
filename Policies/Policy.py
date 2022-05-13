@@ -20,7 +20,7 @@ class Policy(nn.Module):
     def get_backprop_data(self, obs, acts):
         raise NotImplementedError
 
-    def get_action(self, obs):
+    def get_action(self, obs, deterministic=False):
         raise NotImplementedError
 
     def build_model(self, model_json, input_shape, output_shape):

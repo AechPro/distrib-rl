@@ -4,6 +4,7 @@ from Experience import DistribExperienceManager
 import torch
 import time
 import msgpack
+import os
 
 
 class Client(object):
@@ -57,7 +58,6 @@ class Client(object):
         if len(agent.ep_rewards) > 0:
             rews = msgpack.packb(agent.ep_rewards)
             client.push_data(RedisKeys.CLIENT_POLICY_REWARD_KEY, rews, encoded=True)
-
         print("transmitted {} in {:7.5f}".format(total_timesteps, time.perf_counter() - t1))
 
     def update_models(self):
@@ -111,6 +111,7 @@ class Client(object):
         self.__init__()
 
         self.client = RedisClient()
+
         self.client.connect()
         self.cfg = self.client.get_cfg()
 

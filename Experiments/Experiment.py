@@ -18,7 +18,7 @@ class Experiment(object):
 
         self.current_trial = 0
 
-        self.base_dir = os.path.join(os.getcwd(),"data", "experiments")
+        self.base_dir = os.path.join(os.getcwd(), "data", "experiments")
         self.experiment_name = experiment_json["experiment_name"]
         self.adjustment_dir = ""
 

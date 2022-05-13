@@ -130,6 +130,7 @@ class DistribPPO(object):
         max_lr = self.max_lr
         n = 0
         mean_lr = 0
+        lr_report = 0
         if mean_clip > clip_target:
             if self.is_torch_optimizer:
 

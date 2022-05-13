@@ -39,6 +39,8 @@ class ExperienceReplay(object):
         self.obs = torch.cat((self.obs, torch.as_tensor(obs, dtype=torch.float32)), 0)
         self.values = torch.cat((self.values, torch.as_tensor(values, dtype=torch.float32)), 0)
         self.advantages = torch.cat((self.advantages, torch.as_tensor(advantages, dtype=torch.float32)), 0)
+        self.noise_idxs = torch.cat((self.noise_idxs, torch.as_tensor(noise_idx, dtype=torch.float32)), 0)
+        self.ep_rews = torch.cat((self.ep_rews, torch.as_tensor(ep_rew, dtype=torch.float32)), 0)
         self._clamp_size()
         self.num_timesteps = len(self.actions)
 

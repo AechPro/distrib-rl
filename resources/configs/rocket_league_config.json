@@ -1,9 +1,9 @@
 {
   "device": "cuda:0",
   "seed": 123,
-  "log_to_wandb": false,
+  "log_to_wandb": true,
   "env_id": "Rocket League",
-  "agent": {"type" : "pg"},
+  "agent": {"type" : "marl"},
 
   "value_estimator":
   {
@@ -57,7 +57,7 @@
 
   "policy":
   {
-    "type" : ["ff", "continuous"],
+    "type" : ["ff", "discrete"],
     "init_type": "normc",
     "init_std": 1.0,
     "action_init_std": 1.0,
@@ -70,23 +70,30 @@
       "ff1":
       {
         "type" : "ff",
-        "num_nodes" : 64,
-        "activation_function" : "tanh",
+        "num_nodes" : 128,
+        "activation_function" : "relu",
         "extra" : null
       },
       "ff2":
       {
         "type" : "ff",
-        "num_nodes" : 64,
-        "activation_function" : "tanh",
+        "num_nodes" : 128,
+        "activation_function" : "relu",
+        "extra" : null
+      },
+      "ff3":
+      {
+        "type" : "ff",
+        "num_nodes" : 128,
+        "activation_function" : "relu",
         "extra" : null
       },
       "output":
       {
-          "type": "diag_out",
+          "type": "out",
           "extra": [3,3,3,3,3,2,2,2],
           "num_nodes": 21,
-          "activation_function": "continuous_map"
+          "activation_function": "softmax"
       }
     }
   },
@@ -94,7 +101,7 @@
   "policy_gradient_optimizer":
   {
     "type": "dsgd",
-    "step_size": 0.0015
+    "step_size": 0.1
   },
 
   "novelty_gradient_optimizer":
@@ -112,18 +119,23 @@
   "policy_optimizer":
   {
     "type": "pg",
-    "gamma": 0.99,
+    "gamma": 0.97,
     "max_kl": 1.0,
     "n_epochs": 10,
     "batch_size": 5000,
     "clip_range": 0.2,
     "gae_lambda": 0.95,
-    "entropy_coef": 0.0,
+    "entropy_coef": 0.005,
     "eps_per_eval": 5,
     "max_timesteps": 1e16,
     "timesteps_per_update": 5000,
     "new_returns_proportion": 0.1,
     "value_updates_per_batch": 10
+  },
+
+  "experience_replay":
+  {
+    "max_buffer_size": 250000
   },
 
   "adaptive_omega":
@@ -133,11 +145,6 @@
     "min_value": 0.0,
     "max_value": 1,
     "default": 0.0
-  },
-
-  "experience_replay":
-  {
-    "max_buffer_size": 60000
   },
 
   "strategy":
@@ -154,9 +161,9 @@
     "tick_skip": 8,
     "team_size": 1,
     "game_speed": 100,
-    "self_play": false,
+    "self_play": true,
     "spawn_opponents": false,
-    "env_id": 1
+    "env_id": 2
   },
 
   "lr_adjuster":

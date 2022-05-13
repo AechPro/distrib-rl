@@ -31,8 +31,11 @@ class ContinuousFF(Policy):
         return term1 + term2 + term3 + term4
 
 
-    def get_action(self, obs, summed_probs=True):
+    def get_action(self, obs, summed_probs=True, deterministic=False):
         mean, std = self.get_output(obs)
+        if deterministic:
+            return mean, 0
+
         # mean, std = RLMath.map_policy_to_continuous_action(model_out)
         # print(mean, std)
         distribution = Normal(loc=mean, scale=std)
