@@ -1,4 +1,4 @@
-import json
+import pyjson5 as json
 import os
 
 
