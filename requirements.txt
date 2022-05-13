@@ -3,7 +3,7 @@ gym==0.21.0
 gym3==0.3.3
 rlgym==1.1.0
 pyjson5==1.6.1
-matplotlib==3.1.1
+matplotlib>=3.1, <4
 -e git+https://github.com/kenjyoung/MinAtar.git@2a12fc8af0402f7473c567b2d74f7236b2551681#egg=MinAtar
 msgpack==1.0.2
 msgpack-numpy==0.4.7.1
