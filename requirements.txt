@@ -2,7 +2,7 @@ absl-py==0.7.1
 gym==0.21.0
 gym3==0.3.3
 rlgym==1.1.0
-pyjson5==0.9.8
+pyjson5==1.6.1
 matplotlib==3.1.1
 -e git+https://github.com/kenjyoung/MinAtar.git@2a12fc8af0402f7473c567b2d74f7236b2551681#egg=MinAtar
 msgpack==1.0.2
@@ -14,10 +14,11 @@ pywin32==228
 redis==3.5.3
 rlgym==1.1.0
 rlgym-tools @ git+https://github.com/RLGym/rlgym-tools.git@8657b86590813e7f2644af6113218f9133bfda5c
-scipy==1.3.0
+scipy>=1.8.0, <2.0.0
 stable_baselines3
 
 --find-links https://download.pytorch.org/whl/torch_stable.html
+# torch==1.11.0+cpu # CPU only version (smaller, no gpu acceleration)
 torch==1.11.0
 torchvision==0.12.0
 
