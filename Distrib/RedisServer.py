@@ -5,7 +5,7 @@ import msgpack
 import msgpack_numpy as m
 m.patch()
 import time
-import json
+import pyjson5 as json
 
 
 class RedisServer(object):

@@ -1,0 +1,28 @@
+absl-py==0.7.1
+gym==0.21.0
+gym3==0.3.3
+rlgym==1.1.0
+pyjson5=0.9.8
+matplotlib==3.1.1
+-e git+https://github.com/kenjyoung/MinAtar.git@2a12fc8af0402f7473c567b2d74f7236b2551681#egg=MinAtar
+msgpack==1.0.2
+msgpack-numpy==0.4.7.1
+numpy==1.21.4
+pandas==1.3.5
+psutil==5.8.0
+pywin32==228
+redis==3.5.3
+rlgym==1.1.0
+rlgym-tools @ git+https://github.com/RLGym/rlgym-tools.git@8657b86590813e7f2644af6113218f9133bfda5c
+scipy==1.3.0
+stable_baselines3
+
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.11.0
+torchvision==0.12.0
+
+trueskill==0.4.5
+typing-extensions==3.7.4.3
+typing-inspect==0.6.0
+zuper-typing-z6==6.1.8
+wandb==0.10.33

@@ -3,7 +3,7 @@ from Utils import RedisHelpers as helpers
 from Distrib import RedisKeys, RedisServer
 import msgpack
 import time
-import json
+import pyjson5 as json
 
 
 class RedisClient(object):
