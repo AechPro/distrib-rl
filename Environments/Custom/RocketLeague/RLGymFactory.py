@@ -45,15 +45,15 @@ def build_rlgym_from_config(config):
             reward_fn = Kickoff.KickoffRewardFunction()
             terminal_conditions = [Kickoff.KickoffTerminalConditions()]
 
-    if cfg["action_parser"]:
+    if cfg.get("action_parser", False):
         action_parser = build_action_parser_from_config(cfg["action_parser"])
-    if cfg["obs"]:
-        obs_builder = build_obs_builder_from_config(cfg["obs"])
-    if cfg["state_setters"]:
+    if cfg.get("obs_builder", False):
+        obs_builder = build_obs_builder_from_config(cfg["obs_builder"])
+    if cfg.get("state_setters", False):
         state_setter = build_state_setter_from_config(cfg["state_setters"])
-    if cfg["reward_fn"]:
-        reward_fn = build_reward_fn_from_config(cfg["reward_fn"])
-    if cfg["terminal_conditions"]:
+    if cfg.get("rewards", False):
+        reward_fn = build_reward_fn_from_config(cfg["rewards"])
+    if cfg.get("terminal_conditions", False):
         terminal_conditions = build_terminal_conditions_from_config(cfg["terminal_conditions"])
 
     return rlgym.make(

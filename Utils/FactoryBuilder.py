@@ -17,9 +17,9 @@ def build_component_factory(component_name, builders, arg_transformers, require_
 
         if type(config) == list or len(config) > 1:
             if type(config) == dict:
-                return [build_individual({ key: config[key] } for key in config)]
+                return [build_individual({ key: config[key] }) for key in config]
 
-            return [ build_individual(c) for c in config ]
+            return [ build(c) for c in config ]
 
         elif len(config) == 1:
             return build_individual(config)
@@ -27,7 +27,7 @@ def build_component_factory(component_name, builders, arg_transformers, require_
         return None
 
     def build_individual(config):
-        key = config.keys()[0]
+        key = list(config.keys())[0]
 
         Builder = builders.get(key, None)
 
@@ -37,7 +37,7 @@ def build_component_factory(component_name, builders, arg_transformers, require_
         kwargs = config[key]
 
         if key in arg_transformers:
-            kwargs = arg_transformers(**kwargs)
+            kwargs = arg_transformers[key](**kwargs)
 
         return Builder(**kwargs)
     

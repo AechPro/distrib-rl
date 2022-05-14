@@ -17,6 +17,5 @@ _arg_transformers = {}
 register_terminal_condition, build_terminal_conditions_from_config = build_component_factory(
     component_name = "terminal condition",
     builders = _builders,
-    arg_transformers = _arg_transformers,
-    require_list=True
+    arg_transformers = _arg_transformers
 )

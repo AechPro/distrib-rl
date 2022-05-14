@@ -45,23 +45,23 @@ _builders = {
 
 _arg_transformers = {
     "combined": lambda **kwargs: {
-        "rewards": build_reward_fn_from_config(kwargs["reward_functions"]),
-        "weights": tuple(kwargs["reward_weights"])
+        "reward_functions": build_reward_fn_from_config(kwargs["rewards"]),
+        "reward_weights": tuple(kwargs["weights"])
     },
     "diff": lambda **kwargs: {
-        "reward": build_reward_fn_from_config(kwargs["reward_function"]),
+        "reward_function": build_reward_fn_from_config(kwargs["reward"]),
         "negative_slope": kwargs.get("negative_slope", 0.1)
     },
     "distribute": lambda **kwargs: {
-        "reward": build_reward_fn_from_config(kwargs["reward_function"]),
+        "reward_function": build_reward_fn_from_config(kwargs["reward"]),
         "team_spirit": kwargs.get("team_spirit", 0.3)
     },
     "multi_model": lambda **kwargs: {
-        "rewards": build_reward_fn_from_config(kwargs["reward_funcs"]),
+        "reward_funcs": build_reward_fn_from_config(kwargs["rewards"]),
         "model_map": kwargs["model_map"],
     },
     "multiply": lambda **kwargs: {
-        "rewards": [build_reward_fn_from_config(f) for f in kwargs["reward_functions"]]
+        "reward_functions": [build_reward_fn_from_config(f) for f in kwargs["rewards"]]
     },
     "sequential": lambda **kwargs: {
         "rewards": [build_reward_fn_from_config(f) for f in kwargs["rewards"]],
