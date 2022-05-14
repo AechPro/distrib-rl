@@ -5,6 +5,11 @@ from rlgym.utils.action_parsers import DiscreteAction
 from rlgym.utils.obs_builders import DefaultObs
 from rlgym.utils.reward_functions import DefaultReward
 from rlgym.utils.state_setters import DefaultState
+from Environments.Custom.RocketLeague.ActionParserFactory import build_action_parser_from_config
+from Environments.Custom.RocketLeague.ObsBuilderFactory import build_obs_builder_from_config
+from Environments.Custom.RocketLeague.RewardFunctionFactory import build_reward_fn_from_config
+from Environments.Custom.RocketLeague.StateSetterFactory import build_state_setter_from_config
+from Environments.Custom.RocketLeague.TerminalConditionsFactory import build_terminal_conditions_from_config
 
 
 def build_rlgym_from_config(config):
@@ -16,28 +21,40 @@ def build_rlgym_from_config(config):
     reward_fn = DefaultReward()
     terminal_conditions = [TimeoutCondition(225), GoalScoredCondition()]
 
-    env_id = int(cfg["env_id"])
+    if cfg.get("env_id", None):
+        env_id = int(cfg["env_id"])
 
-    if env_id == 0:
-        action_parser = Default.DefaultActionParser()
-        obs_builder = Default.DefaultObsBuilder()
-        state_setter = Default.DefaultStateSetter()
-        reward_fn = Default.DefaultRewardFunction()
-        terminal_conditions = [Default.DefaultTerminalConditions()]
+        if env_id == 0:
+            action_parser = Default.DefaultActionParser()
+            obs_builder = Default.DefaultObsBuilder()
+            state_setter = Default.DefaultStateSetter()
+            reward_fn = Default.DefaultRewardFunction()
+            terminal_conditions = [Default.DefaultTerminalConditions()]
 
-    elif env_id == 1:
-        action_parser = SoloDefender.SoloDefenderActionParser()
-        obs_builder = SoloDefender.SoloDefenderObsBuilder()
-        state_setter = SoloDefender.SoloDefenderStateSetter()
-        reward_fn = SoloDefender.SoloDefenderRewardFunction()
-        terminal_conditions = [SoloDefender.SoloDefenderTerminalConditions()]
-    
-    elif env_id == 2:
-        action_parser = Kickoff.NectoActionParser()
-        obs_builder = Kickoff.KickoffObsBuilder()
-        state_setter = Kickoff.KickoffStateSetter()
-        reward_fn = Kickoff.KickoffRewardFunction()
-        terminal_conditions = [Kickoff.KickoffTerminalConditions()]
+        elif env_id == 1:
+            action_parser = SoloDefender.SoloDefenderActionParser()
+            obs_builder = SoloDefender.SoloDefenderObsBuilder()
+            state_setter = SoloDefender.SoloDefenderStateSetter()
+            reward_fn = SoloDefender.SoloDefenderRewardFunction()
+            terminal_conditions = [SoloDefender.SoloDefenderTerminalConditions()]
+        
+        elif env_id == 2:
+            action_parser = Kickoff.NectoActionParser()
+            obs_builder = Kickoff.KickoffObsBuilder()
+            state_setter = Kickoff.KickoffStateSetter()
+            reward_fn = Kickoff.KickoffRewardFunction()
+            terminal_conditions = [Kickoff.KickoffTerminalConditions()]
+
+    if cfg["action_parser"]:
+        action_parser = build_action_parser_from_config(cfg["action_parser"])
+    if cfg["obs"]:
+        obs_builder = build_obs_builder_from_config(cfg["obs"])
+    if cfg["state_setters"]:
+        state_setter = build_state_setter_from_config(cfg["state_setters"])
+    if cfg["reward_fn"]:
+        reward_fn = build_reward_fn_from_config(cfg["reward_fn"])
+    if cfg["terminal_conditions"]:
+        terminal_conditions = build_terminal_conditions_from_config(cfg["terminal_conditions"])
 
     return rlgym.make(
         game_speed=cfg["game_speed"],
