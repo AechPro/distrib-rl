@@ -15,22 +15,27 @@ class MARLAgent(object):
         self.save_both_teams = True
         self.ep_rewards = []
         self.current_ep_rew = 0
+        self.policies = None
+        self.n_agents = cfg["rlgym"]["team_size"] * 2 if cfg["rlgym"]["self_play"] else cfg["rlgym"]["team_size"]
 
 
     @torch.no_grad()
     def gather_timesteps(self, policy, env, num_timesteps=None, num_seconds=None, num_eps=None):
+        n_agents = self.n_agents
+        agents_to_save = n_agents if self.save_both_teams else n_agents // 2
+
         if self.opponent_policy is None:
             self.init_opponent_policy(env)
 
-        n_agents = 2
-        policies = [policy, self.opponent_policy]
+        if self.policies is None:
+            self.policies = [policy for _ in range(n_agents // 2)] + [self.opponent_policy for _ in range(n_agents // 2)]
+        policies = self.policies
         experience_trajectories = []
         trajectories = [Trajectory() for _  in range(n_agents)]
 
-        if self.leftover_obs is None:
+        obs = self.leftover_obs
+        if obs is None:
             obs = env.reset()
-        else:
-            obs = self.leftover_obs
 
         cumulative_timesteps = 0
         start_time = time.time()
@@ -46,9 +51,9 @@ class MARLAgent(object):
             next_obs, rews, done, _ = env.step(np.asarray(actions))
 
             for i in range(n_agents):
-                if not self.save_both_teams and i < n_agents//2:
+                if self.save_both_teams:
                     self.current_ep_rew += rews[i]
-                elif self.save_both_teams:
+                elif i < n_agents//2:
                     self.current_ep_rew += rews[i]
 
                 ts[i].reward = rews[i]
@@ -58,19 +63,20 @@ class MARLAgent(object):
 
             cumulative_timesteps += 1
             if done:
-                num = n_agents if self.save_both_teams else n_agents // 2
-                self.ep_rewards.append(self.current_ep_rew/num)
+
+                self.ep_rewards.append(self.current_ep_rew/agents_to_save)
                 self.current_ep_rew = 0
 
-                for i in range(num):
+                for i in range(agents_to_save):
                     trajectories[i].final_obs = next_obs[i]
                     experience_trajectories.append(trajectories[i])
 
-                result = sum(trajectories[0].rewards) > sum(trajectories[1].rewards)
+                # todo: Implement a proper opponent evaluation & selection scheme and delete this.
+                result = sum(trajectories[0].rewards) > sum(trajectories[-1].rewards)
                 self.opponent_selector.submit_result(self.opponent_num, result)
                 self.get_next_opponent(policy)
-                next_obs = env.reset()
 
+                next_obs = env.reset()
                 trajectories = [Trajectory() for _  in range(n_agents)]
 
             obs = next_obs
@@ -79,60 +85,13 @@ class MARLAgent(object):
                num_eps is not None and len(experience_trajectories) >= num_eps:
                 break
 
-        if not done:
-            self.leftover_obs = next_obs.copy()
-        else:
-            self.leftover_obs = None
+        self.leftover_obs = next_obs.copy()
 
-
-        if len(trajectories[0].obs) > 0:
-            trajectories[0].final_obs = next_obs[0]
-            experience_trajectories.append(trajectories[0])
-
-        if self.save_both_teams:
-            for i in range(1, n_agents):
-                if len(trajectories[i].obs) > 0:
-                    trajectories[i].final_obs = next_obs[i]
-                    experience_trajectories.append(trajectories[i])
+        for i in range(agents_to_save):
+            trajectories[i].final_obs = next_obs[i]
+            experience_trajectories.append(trajectories[i])
 
         return experience_trajectories
-
-    @torch.no_grad()
-    def evaluate_policy(self, policy, env, num_timesteps=0, num_eps=1, render=False):
-        obs = env.reset()
-        reward1, reward2 = 0, 0
-        rewards1, rewards2 = [], []
-        i = 0
-
-        if self.opponent_policy is None:
-            self.init_opponent_policy(env)
-
-        p1 = policy
-        p2 = self.opponent_policy
-
-        while i < num_timesteps or len(rewards1) < num_eps:
-            obs1, obs2 = obs
-            action1, log_prob1 = p1.get_action(obs1)
-            action2, log_prob2 = p2.get_action(obs2)
-            next_obs, rew, done, _ = env.step((action1, action2))
-
-            reward1 += rew[0]
-            reward2 += rew[1]
-
-            if done:
-                next_obs = env.reset()
-                rewards1.append(reward1)
-                rewards2.append(reward2)
-                reward1 = 0
-                reward2 = 0
-
-            obs = next_obs
-            i += 1
-
-            if render:
-                env.render()
-
-        return np.mean(rewards1)
 
     def get_next_opponent(self, policy):
         opponent_weights, opponent_num = self.opponent_selector.get_opponent()

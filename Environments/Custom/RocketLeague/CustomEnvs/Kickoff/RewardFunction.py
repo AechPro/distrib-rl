@@ -8,11 +8,11 @@ from rlgym.utils.reward_functions.common_rewards import VelocityPlayerToBallRewa
 class KickoffRewardFunction(RewardFunction):
     def __init__(self):
         self.rf = VelocityPlayerToBallReward()
-        self.prev_boosts = {1:0.34, 5:0.34}
+        self.prev_boosts = {}
 
     def reset(self, initial_state: GameState):
         self.rf.reset(initial_state)
-        self.prev_boosts = {1:0.34, 5:0.34}
+        self.prev_boosts = {p.car_id:p.boost_amount for p in initial_state.players}
 
     def get_reward(self, player: PlayerData, state: GameState, previous_action: np.ndarray) -> float:
         if player.team_num == common_values.ORANGE_TEAM:
