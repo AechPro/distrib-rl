@@ -9,7 +9,7 @@ from rlgym.utils.reward_functions.common_rewards import AlignBallGoal, \
 from rlgym_tools.extra_rewards.anneal_rewards import AnnealRewards
 from rlgym_tools.extra_rewards.diff_reward import DiffReward
 from rlgym_tools.extra_rewards.distribute_rewards import DistributeRewards
-from rlgym_tools.extra_rewards.jump_touch_reward import JumpTouchReward
+#from rlgym_tools.extra_rewards.jump_touch_reward import JumpTouchReward
 from rlgym_tools.extra_rewards.kickoff_reward import KickoffReward
 from rlgym_tools.extra_rewards.multi_model_rewards import MultiModelReward
 from rlgym_tools.extra_rewards.multiply_rewards import MultiplyRewards
@@ -36,7 +36,7 @@ _builders = {
     "anneal_rewards": lambda **kwargs: AnnealRewards(*sum(zip([build_reward_fn_from_config(r) for r in kwargs["reward_functions"]], kwargs["weights"]), ())),
     "diff": DiffReward,
     "distribute": DistributeRewards,
-    "jump_touch": JumpTouchReward,
+    #"jump_touch": JumpTouchReward,
     "kickoff": KickoffReward,
     "multi_model": MultiModelReward,
     "multiply": MultiplyRewards,
