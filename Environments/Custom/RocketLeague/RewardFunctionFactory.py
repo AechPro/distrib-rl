@@ -9,11 +9,11 @@ from rlgym.utils.reward_functions.common_rewards import AlignBallGoal, \
 from rlgym_tools.extra_rewards.anneal_rewards import AnnealRewards
 from rlgym_tools.extra_rewards.diff_reward import DiffReward
 from rlgym_tools.extra_rewards.distribute_rewards import DistributeRewards
-from rlgym_tools.extra_rewards.jump_touch_reward import JumpTouchReward
+#from rlgym_tools.extra_rewards.jump_touch_reward import JumpTouchReward
 from rlgym_tools.extra_rewards.kickoff_reward import KickoffReward
 from rlgym_tools.extra_rewards.multi_model_rewards import MultiModelReward
 from rlgym_tools.extra_rewards.multiply_rewards import MultiplyRewards
-from rlgym_tools.extra_rewards.sequential_rewards import SequentialRewards
+#from rlgym_tools.extra_rewards.sequential_rewards import SequentialRewards
 
 from Utils.FactoryBuilder import build_component_factory
 
@@ -36,32 +36,32 @@ _builders = {
     "anneal_rewards": lambda **kwargs: AnnealRewards(*sum(zip([build_reward_fn_from_config(r) for r in kwargs["reward_functions"]], kwargs["weights"]), ())),
     "diff": DiffReward,
     "distribute": DistributeRewards,
-    "jump_touch": JumpTouchReward,
+    #"jump_touch": JumpTouchReward,
     "kickoff": KickoffReward,
     "multi_model": MultiModelReward,
     "multiply": MultiplyRewards,
-    "sequential": SequentialRewards
+    #"sequential": SequentialRewards
 }
 
 _arg_transformers = {
     "combined": lambda **kwargs: {
-        "rewards": build_reward_fn_from_config(kwargs["reward_functions"]),
-        "weights": tuple(kwargs["reward_weights"])
+        "reward_functions": build_reward_fn_from_config(kwargs["rewards"]),
+        "reward_weights": tuple(kwargs["weights"])
     },
     "diff": lambda **kwargs: {
-        "reward": build_reward_fn_from_config(kwargs["reward_function"]),
+        "reward_function": build_reward_fn_from_config(kwargs["reward"]),
         "negative_slope": kwargs.get("negative_slope", 0.1)
     },
     "distribute": lambda **kwargs: {
-        "reward": build_reward_fn_from_config(kwargs["reward_function"]),
+        "reward_function": build_reward_fn_from_config(kwargs["reward"]),
         "team_spirit": kwargs.get("team_spirit", 0.3)
     },
     "multi_model": lambda **kwargs: {
-        "rewards": build_reward_fn_from_config(kwargs["reward_funcs"]),
+        "reward_funcs": build_reward_fn_from_config(kwargs["rewards"]),
         "model_map": kwargs["model_map"],
     },
     "multiply": lambda **kwargs: {
-        "rewards": [build_reward_fn_from_config(f) for f in kwargs["reward_functions"]]
+        "reward_functions": [build_reward_fn_from_config(f) for f in kwargs["rewards"]]
     },
     "sequential": lambda **kwargs: {
         "rewards": [build_reward_fn_from_config(f) for f in kwargs["rewards"]],
