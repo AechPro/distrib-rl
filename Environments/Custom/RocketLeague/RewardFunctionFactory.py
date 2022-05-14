@@ -1,5 +1,3 @@
-from types import NoneType
-from typing import Any, Callable, Dict, Union, Str
 from rlgym.utils.reward_functions.combined_reward import CombinedReward
 from rlgym.utils.reward_functions.common_rewards import AlignBallGoal, \
         BallYCoordinateReward, ConstantReward, EventReward, FaceBallReward, \
