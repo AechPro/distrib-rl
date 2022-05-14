@@ -13,7 +13,7 @@ from rlgym_tools.extra_rewards.distribute_rewards import DistributeRewards
 from rlgym_tools.extra_rewards.kickoff_reward import KickoffReward
 from rlgym_tools.extra_rewards.multi_model_rewards import MultiModelReward
 from rlgym_tools.extra_rewards.multiply_rewards import MultiplyRewards
-from rlgym_tools.extra_rewards.sequential_rewards import SequentialRewards
+#from rlgym_tools.extra_rewards.sequential_rewards import SequentialRewards
 
 from Utils.FactoryBuilder import build_component_factory
 
@@ -40,7 +40,7 @@ _builders = {
     "kickoff": KickoffReward,
     "multi_model": MultiModelReward,
     "multiply": MultiplyRewards,
-    "sequential": SequentialRewards
+    #"sequential": SequentialRewards
 }
 
 _arg_transformers = {
