@@ -4,7 +4,7 @@ from Experience import DistribExperienceManager
 import torch
 import time
 import msgpack
-import os
+import numpy as np
 
 
 class Client(object):
@@ -47,7 +47,7 @@ class Client(object):
         trajectories_to_send = []
         total_timesteps = 0
         for trajectory in trajectories:
-            values = value_estimator.get_output(trajectory.obs + [trajectory.final_obs]).flatten().numpy().tolist()
+            values = value_estimator.get_output(np.asarray(trajectory.obs + [trajectory.final_obs])).flatten().tolist()
             trajectory.finalize(gamma=gamma, reward_stats=reward_stats, values=values, lmbda=lmbda)
 
             n_timesteps = len(trajectory.rewards)
