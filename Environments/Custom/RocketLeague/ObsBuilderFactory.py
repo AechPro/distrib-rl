@@ -3,7 +3,7 @@ from rlgym_tools.extra_obs.advanced_padder import AdvancedObsPadder
 from rlgym_tools.extra_obs.advanced_stacker import AdvancedStacker
 from rlgym_tools.extra_obs.general_stacking import GeneralStacker
 
-from Environments.Custom.RocketLeague.FactoryBuilder import build_component_factory
+from Utils.FactoryBuilder import build_component_factory
 
 _builders = {
     "default": DefaultObs,

@@ -7,7 +7,7 @@ from rlgym_tools.extra_state_setters.wall_state import WallPracticeState
 from rlgym_tools.extra_state_setters.symmetric_setter import KickoffLikeSetter
 from rlgym_tools.extra_state_setters.weighted_sample_setter import WeightedSampleSetter
 
-from Environments.Custom.RocketLeague.FactoryBuilder import build_component_factory
+from Utils.FactoryBuilder import build_component_factory
 
 _builders = {
     "default": DefaultState,
