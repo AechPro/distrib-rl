@@ -1,7 +1,7 @@
 from rlgym.utils.terminal_conditions.common_conditions import BallTouchedCondition, GoalScoredCondition, NoTouchTimeoutCondition, TimeoutCondition
 from rlgym_tools.extra_terminals.game_condition import GameCondition
 
-from Environments.Custom.RocketLeague.FactoryBuilder import build_component_factory
+from Utils.FactoryBuilder import build_component_factory
 
 
 _builders = {

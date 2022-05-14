@@ -17,7 +17,7 @@ from rlgym_tools.extra_rewards.multi_model_rewards import MultiModelReward
 from rlgym_tools.extra_rewards.multiply_rewards import MultiplyRewards
 from rlgym_tools.extra_rewards.sequential_rewards import SequentialRewards
 
-from Environments.Custom.RocketLeague.ComponentBuilderFactory import build_component_builder_factory
+from Utils.FactoryBuilder import build_component_factory
 
 _builders = {
     "combined": CombinedReward,
@@ -72,7 +72,7 @@ _arg_transformers = {
 }
 
 
-register_reward_function, build_reward_fn_from_config = build_component_builder_factory(
+register_reward_function, build_reward_fn_from_config = build_component_factory(
     "reward function",
     builders=_builders,
     arg_transformers=_arg_transformers,
