@@ -26,3 +26,5 @@ typing-extensions==3.7.4.3
 typing-inspect==0.6.0
 zuper-typing-z6==6.1.8
 wandb==0.10.33
+
+lz4==4.0.0

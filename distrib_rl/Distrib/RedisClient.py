@@ -1,7 +1,6 @@
 from redis import Redis
-from distrib_rl.Utils import RedisHelpers as helpers
+from distrib_rl.Utils import RedisHelpers as helpers, CompressionSerialisation as cser
 from distrib_rl.Distrib import RedisKeys, RedisServer
-import msgpack
 import time
 import pyjson5 as json
 import os
@@ -104,7 +103,7 @@ class RedisClient(object):
         return status.decode("utf-8")
 
     def transmit_env_spaces(self, input_shape, output_shape):
-        encoded = msgpack.packb((input_shape, output_shape))
+        encoded = cser.pack((input_shape, output_shape))
         self.redis.set(RedisKeys.ENV_SPACES_KEY, encoded)
 
 
