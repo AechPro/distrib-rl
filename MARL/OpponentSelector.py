@@ -19,7 +19,9 @@ class OpponentSelector(object):
 
         ip = os.environ.get("REDIS_HOST", default='localhost')
         port = os.environ.get("REDIS_PORT", default=6379)
-        self.redis = Redis(host=ip, port=port)
+        password = os.environ.get("REDIS_PASSWORD", default=None)
+
+        self.redis = Redis(host=ip, port=port, password=password)
 
     def get_opponent(self):
         encoded = self.redis.get(RedisKeys.MARL_CURRENT_OPPONENT_KEY)
