@@ -1,9 +1,9 @@
 from distrib_rl.PolicyOptimization.DistribPolicyGradients import Configurator
 from distrib_rl.Distrib import RedisClient, RedisKeys, RedisServer
 from distrib_rl.Experience import DistribExperienceManager
+from distrib_rl.Utils import CompressionSerialisation as cser
 import torch
 import time
-import msgpack
 import numpy as np
 
 
@@ -56,7 +56,7 @@ class Client(object):
 
         exp_manager.push_trajectories(trajectories_to_send)
         if len(agent.ep_rewards) > 0:
-            rews = msgpack.packb(agent.ep_rewards)
+            rews = cser.pack(agent.ep_rewards)
             client.push_data(RedisKeys.CLIENT_POLICY_REWARD_KEY, rews, encoded=True)
             agent.ep_rewards = []
         print("transmitted {} in {:7.5f}".format(total_timesteps, time.perf_counter() - t1))
@@ -116,6 +116,13 @@ class Client(object):
 
         self.client.connect()
         self.cfg = self.client.get_cfg()
+
+        networking_cfg = self.cfg.get("networking", dict(compression="none"))
+        compression = networking_cfg.get("compression", "none")
+        if compression == "lz4":
+            cser.set_compression(cser.LZ4)
+        elif compression != "none":
+            raise ValueError("Unknown compression type: {}".format(compression))
 
         self.env, self.experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, \
         self.agent, self.policy, self.strategy_optimizer, adaptive_omega, self.value_net, \

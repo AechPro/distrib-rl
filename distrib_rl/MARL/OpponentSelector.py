@@ -1,9 +1,6 @@
-import msgpack_numpy
-import msgpack
-msgpack_numpy.patch()
-
 from trueskill import rate_1vs1, Rating
 from distrib_rl.Distrib import RedisKeys
+from distrib_rl.Utils import CompressionSerialisation as cser
 from redis import Redis
 import time
 import os
@@ -28,12 +25,12 @@ class OpponentSelector(object):
         if encoded is None:
             return None, -1
 
-        decoded = msgpack.unpackb(encoded)
+        decoded = cser.unpack(encoded)
         return decoded
 
     def update_opponent(self):
         if self.cfg["rng"].randint(0, 10) > 2 or len(self.player_skills) == 0:
-            encoded = msgpack.packb((-1, -1))
+            encoded = cser.pack((-1, -1))
             self.redis.set(RedisKeys.MARL_CURRENT_OPPONENT_KEY, encoded)
             return
 
@@ -58,7 +55,7 @@ class OpponentSelector(object):
         opponent_num = self.rng.choice(indices, p=probs)
         params = self.known_policies[opponent_num]
 
-        encoded = msgpack.packb((params, opponent_num))
+        encoded = cser.pack((params, opponent_num))
         self.redis.set(RedisKeys.MARL_CURRENT_OPPONENT_KEY, encoded)
 
     def update_ratings(self):
@@ -68,7 +65,7 @@ class OpponentSelector(object):
         results = []
 
         while current is not None:
-            decoded = msgpack.unpackb(current)
+            decoded = cser.unpack(current)
             current = red.lpop(key)
             if decoded[0] != -1:
                 results.append(decoded)
@@ -101,7 +98,7 @@ class OpponentSelector(object):
         success = False
         while not success:
             try:
-                encoded = msgpack.packb((opponent_num, victory))
+                encoded = cser.pack((opponent_num, victory))
                 success = True
             except MemoryError:
                 print("Failed to submit MARL result...")

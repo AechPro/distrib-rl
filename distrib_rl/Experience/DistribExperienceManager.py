@@ -1,9 +1,6 @@
-import msgpack
-import msgpack_numpy as m
-m.patch()
 from distrib_rl.Distrib import RedisKeys
 from distrib_rl.Experience import Trajectory, ExperienceReplay
-import time
+from distrib_rl.Utils import CompressionSerialisation as cser
 
 class DistribExperienceManager(object):
     def __init__(self, cfg, client=None, server=None):
@@ -16,7 +13,7 @@ class DistribExperienceManager(object):
         if self.client is None:
             return
 
-        encoded = msgpack.packb(trajectories)
+        encoded = cser.pack(trajectories)
 
         self.client.push_data(RedisKeys.CLIENT_EXPERIENCE_KEY, encoded, encoded=True)
 

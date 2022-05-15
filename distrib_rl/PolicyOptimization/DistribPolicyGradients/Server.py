@@ -1,6 +1,6 @@
 from distrib_rl.PolicyOptimization.DistribPolicyGradients import Configurator
 from distrib_rl.MARL import OpponentSelector
-from distrib_rl.Distrib import RedisServer, RedisKeys
+from distrib_rl.Distrib import RedisServer, RedisKeys, CompressionSerialisation as cser
 from distrib_rl.Utils import ConfigLoader
 from distrib_rl.Experience import ParallelExperienceManager
 import time
@@ -208,6 +208,13 @@ class Server(object):
         self.__init__()
         self.cfg = cfg
         self.terminal_conditions = terminal_conditions
+
+        networking_cfg = self.cfg.get("networking", dict(compression="none"))
+        compression = networking_cfg.get("compression", "none")
+        if compression == "lz4":
+            cser.set_compression(cser.LZ4)
+        elif compression != "none":
+            raise ValueError("Unknown compression type: {}".format(compression))
 
         in_shape, out_shape = self.setup_redis(cfg)
         print("Server configuring...")

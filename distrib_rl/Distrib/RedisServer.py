@@ -1,9 +1,6 @@
 from redis import Redis
-from distrib_rl.Utils import RedisHelpers as helpers
+from distrib_rl.Utils import RedisHelpers as helpers, CompressionSerialisation as cser
 from distrib_rl.Distrib import RedisKeys
-import msgpack
-import msgpack_numpy as m
-m.patch()
 import time
 import pyjson5 as json
 import os
@@ -80,7 +77,7 @@ class RedisServer(object):
         new_policy_rewards = helpers.atomic_pop_all(self.redis, RedisKeys.CLIENT_POLICY_REWARD_KEY)
         rews = []
         for reward_list in new_policy_rewards:
-            rews += msgpack.unpackb(reward_list)
+            rews += cser.unpack(reward_list)
         return rews
 
     def push_update(self, policy_params, val_params, strategy_frames, strategy_history, current_epoch):
@@ -132,14 +129,14 @@ class RedisServer(object):
                 time.sleep(0.1)
                 continue
 
-            in_space, out_space = msgpack.unpackb(data)
+            in_space, out_space = cser.unpack(data)
         return in_space, out_space
 
     def _update_buffer(self):
         new_returns = helpers.atomic_pop_all(self.redis, RedisKeys.CLIENT_EXPERIENCE_KEY)
         collected_timesteps = 0
         for packet in new_returns:
-            decoded = msgpack.unpackb(packet)
+            decoded = cser.unpack(packet)
 
             for serialized_trajectory in decoded:
                 n_timesteps = len(serialized_trajectory[0])
