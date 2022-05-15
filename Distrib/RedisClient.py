@@ -16,8 +16,9 @@ class RedisClient(object):
     def connect(self):
         ip = os.environ.get("REDIS_HOST", default='localhost')
         port = os.environ.get("REDIS_PORT", default=6379)
+        password = os.environ.get("REDIS_PASSWORD", default=None)
 
-        self.redis = redis.Redis(host=ip, port=port)
+        self.redis = redis.Redis(host=ip, port=port, password=password)
 
     def push_data(self, key, data, encoded=False):
         red = self.redis
