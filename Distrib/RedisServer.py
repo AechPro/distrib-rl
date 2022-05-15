@@ -30,7 +30,8 @@ class RedisServer(object):
     def connect(self, clear_existing=False, new_server_instance=True):
         ip = os.environ.get("REDIS_HOST", default='localhost')
         port = os.environ.get("REDIS_PORT", default=6379)
-        self.redis = redis.Redis(host=ip, port=port)
+        password = os.environ.get("REDIS_PASSWORD", default=None)
+        self.redis = redis.Redis(host=ip, port=port, password=password)
         if clear_existing:
             self.redis.flushall()
 

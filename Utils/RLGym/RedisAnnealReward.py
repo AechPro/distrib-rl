@@ -23,7 +23,11 @@ class RedisAnnealReward(RewardFunction):
         self.is_annealing = False
         self.annealing_ts = 0
 
-        self.redis = redis.Redis(port=25565)
+        ip = os.environ.get("REDIS_HOST", default='localhost')
+        port = os.environ.get("REDIS_PORT", default=25565)
+        password = os.environ.get("REDIS_PASSWORD", default=None)
+
+        self.redis = redis.Redis(host=ip, port=port, password=password)
 
         self._advance()
 
