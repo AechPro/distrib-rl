@@ -1,4 +1,4 @@
-import redis
+from redis import Redis
 from Utils import RedisHelpers as helpers
 from Distrib import RedisKeys
 import msgpack
@@ -31,7 +31,7 @@ class RedisServer(object):
         ip = os.environ.get("REDIS_HOST", default='localhost')
         port = os.environ.get("REDIS_PORT", default=6379)
         password = os.environ.get("REDIS_PASSWORD", default=None)
-        self.redis = redis.Redis(host=ip, port=port, password=password)
+        self.redis = Redis(host=ip, port=port, password=password)
         if clear_existing:
             self.redis.flushall()
 
