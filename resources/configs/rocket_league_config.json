@@ -171,5 +171,9 @@
     "rate": 1.1,
     "max_lr": 1,
     "min_lr": 1e-7
+  },
+
+  "networking": {
+    "compression": "lz4"
   }
 }
