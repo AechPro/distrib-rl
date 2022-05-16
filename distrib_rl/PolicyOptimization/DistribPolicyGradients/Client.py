@@ -121,7 +121,9 @@ class Client(object):
         compression = networking_cfg.get("compression", "none")
         if compression == "lz4":
             cser.set_compression(cser.LZ4)
-        elif compression != "none":
+        elif compression == "none":
+            cser.set_compression(cser.NONE)
+        else:
             raise ValueError("Unknown compression type: {}".format(compression))
 
         self.env, self.experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, \

@@ -6,6 +6,8 @@ patch()
 MIN_SIZE_TO_COMPRESS = 1024
 
 LZ4 = True
+NONE = False
+
 with_compression = False
 def set_compression(compression_to_use):
     global with_compression

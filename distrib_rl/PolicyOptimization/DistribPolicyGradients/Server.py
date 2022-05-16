@@ -213,7 +213,9 @@ class Server(object):
         compression = networking_cfg.get("compression", "none")
         if compression == "lz4":
             cser.set_compression(cser.LZ4)
-        elif compression != "none":
+        elif compression == "none":
+            cser.set_compression(cser.NONE)
+        else:
             raise ValueError("Unknown compression type: {}".format(compression))
 
         in_shape, out_shape = self.setup_redis(cfg)
