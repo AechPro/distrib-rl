@@ -1,1 +1,1 @@
-from Environments.Custom.RocketLeague.ActionParsers.NectoActionParser import NectoActionParser
+from .NectoActionParser import NectoActionParser

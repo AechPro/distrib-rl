@@ -1,6 +1,6 @@
 from rlgym.utils.action_parsers import ContinuousAction, DefaultAction, DiscreteAction
 from rlgym_tools.extra_action_parsers.kbm_act import KBMAction
-from Environments.Custom.RocketLeague.ActionParsers import NectoActionParser
+from .ActionParsers import NectoActionParser
 
 from Utils.FactoryBuilder import build_component_factory
 
