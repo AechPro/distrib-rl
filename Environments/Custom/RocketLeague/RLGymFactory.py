@@ -12,7 +12,7 @@ from Environments.Custom.RocketLeague.StateSetterFactory import build_state_sett
 from Environments.Custom.RocketLeague.TerminalConditionsFactory import build_terminal_conditions_from_config
 
 
-def build_rlgym_from_config(config):
+def build_rlgym_from_config(config, existing_env=None):
     cfg = config["rlgym"]
 
     action_parser = DiscreteAction()
@@ -56,11 +56,33 @@ def build_rlgym_from_config(config):
     if cfg.get("terminal_conditions", False):
         terminal_conditions = build_terminal_conditions_from_config(cfg["terminal_conditions"])
 
+    if existing_env:
+        match = existing_env._match
+        match.__init__(
+            game_speed=cfg["game_speed"],
+            tick_skip=cfg["tick_skip"],
+            spawn_opponents=cfg["spawn_opponents"],
+            team_size=cfg["team_size"],
+            terminal_conditions=terminal_conditions,
+            reward_function=reward_fn,
+            obs_builder=obs_builder,
+            state_setter=state_setter,
+            action_parser=action_parser
+        )
+
+        existing_env.observation_space = match.observation_space
+        existing_env.action_space = match.action_space
+
+        # del clears references so we don't accidentally mangle rlgym state
+        # (probably)
+        o = existing_env.reset()
+        del o
+        return existing_env
+
     return rlgym.make(
         game_speed=cfg["game_speed"],
         tick_skip=cfg["tick_skip"],
         spawn_opponents=cfg["spawn_opponents"],
-        self_play=cfg["self_play"],
         team_size=cfg["team_size"],
         terminal_conditions=terminal_conditions,
         reward_fn=reward_fn,
@@ -68,5 +90,6 @@ def build_rlgym_from_config(config):
         state_setter=state_setter,
         action_parser=action_parser,
         use_injector=True,
-        force_paging=True
+        force_paging=True,
+        auto_minimize=cfg.get("auto_minimize", True)
     )

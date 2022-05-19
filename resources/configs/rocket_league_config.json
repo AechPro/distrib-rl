@@ -161,8 +161,7 @@
     "tick_skip": 8,
     "team_size": 1,
     "game_speed": 100,
-    "self_play": true,
-    "spawn_opponents": false,
+    "spawn_opponents": true,
     "env_id": 2
   },
 

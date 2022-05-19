@@ -159,10 +159,10 @@ class Server(object):
         return False
 
     def setup_redis(self, cfg):
-        print("Connecting to redis...")
         self.server = RedisServer(cfg["experience_replay"]["max_buffer_size"])
         self.server.connect(clear_existing=True)
         self.server.redis.set(RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.RECONFIGURE_STATUS)
+        print("Connected to redis. Waiting for clients...")
         time.sleep(2)
         self.server.push_cfg(cfg)
         self.server.redis.set(RedisKeys.RUNNING_REWARD_MEAN_KEY, 0)

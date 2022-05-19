@@ -16,7 +16,7 @@ class MARLAgent(object):
         self.ep_rewards = []
         self.current_ep_rew = 0
         self.policies = None
-        self.n_agents = cfg["rlgym"]["team_size"] * 2 if cfg["rlgym"]["self_play"] else cfg["rlgym"]["team_size"]
+        self.n_agents = cfg["rlgym"]["team_size"] * 2 if cfg["rlgym"]["spawn_opponents"] else cfg["rlgym"]["team_size"]
 
 
     @torch.no_grad()

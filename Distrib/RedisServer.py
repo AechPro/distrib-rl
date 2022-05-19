@@ -168,6 +168,8 @@ class RedisServer(object):
     def disconnect(self):
         if self.redis is not None:
             self.redis.flushall()
+            print("\nATTEMPTING TO SET REDIS TO STOPPING STATUS")
+            self.redis.set(RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.STOPPING_STATUS)
             self.redis.close()
 
         del self.internal_buffer

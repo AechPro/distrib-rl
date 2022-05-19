@@ -74,7 +74,8 @@ class Client(object):
     def check_server_status(self):
         server_status_flag = self.client.check_server_status()
 
-        if server_status_flag == RedisServer.RESET_STATUS:
+        if server_status_flag == RedisServer.RESET_STATUS or \
+           server_status_flag == None:
             self.reset()
 
         elif server_status_flag == RedisServer.RECONFIGURE_STATUS  or \

@@ -12,7 +12,7 @@ LARGE_BOOST_MASK = np.array([
 ])
 
 class DefaultWithTimeoutsObsBuilder(ObsBuilder):
-    def __init__(self, pos_coef=1/2300, ang_coef=1/math.pi, lin_vel_coef=1/2300, ang_vel_coef=1/math.pi, tick_skip=8, n_players=6):
+    def __init__(self, pos_coef=1/2300, ang_coef=1/math.pi, lin_vel_coef=1/2300, ang_vel_coef=1/math.pi, tick_skip=8):
         """
         :param pos_coef: Position normalization coefficient
         :param ang_coef: Rotation angle normalization coefficient
@@ -28,12 +28,12 @@ class DefaultWithTimeoutsObsBuilder(ObsBuilder):
         self.ANG_COEF = ang_coef
         self.LIN_VEL_COEF = lin_vel_coef
         self.ANG_VEL_COEF = ang_vel_coef
-        #print(f"n_players: {n_players}")
-        self.n_players = n_players
+        self.n_players = None
 
         self.TIMER_DECAY = tick_skip / 1200.0
 
     def reset(self, initial_state: GameState):
+        self.n_players = len(initial_state.players)
         self._state = initial_state
         self.boost_pad_timers: np.ndarray = np.zeros(GameState.BOOST_PADS_LENGTH, dtype=np.float32)
         self.inverted_boost_pad_timers = np.zeros(GameState.BOOST_PADS_LENGTH, dtype=np.float32)
@@ -68,8 +68,6 @@ class DefaultWithTimeoutsObsBuilder(ObsBuilder):
 
         if self._state == None:
             self.reset(state)
-
-        #print(self.demo_timers)
 
         self._update_boost_timers(state.boost_pads, self._state.boost_pads)
         self._update_demo_timers(state.players)
