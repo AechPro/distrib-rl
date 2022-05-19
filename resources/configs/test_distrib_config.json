@@ -175,7 +175,6 @@
     "tick_skip": 8,
     "team_size": 1,
     "game_speed": 100,
-    "self_play": true,
     "spawn_opponents": true,
     "action_parser": 0,
     "obs_builder": 0,

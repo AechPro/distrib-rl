@@ -17,13 +17,16 @@ np.random.seed(0)
 torch.manual_seed(0)
 
 def build_env(cfg, existing_env=None):
+    env_name = cfg["env_id"].lower()
     if existing_env is None:
-        env_name = cfg["env_id"].lower()
         if "rocket" in env_name:
             from Environments.Custom.RocketLeague import RLGymFactory
             env = RLGymFactory.build_rlgym_from_config(cfg)
         else:
             env = gym.make(cfg["env_id"])
+    elif "rocket" in env_name:
+        from Environments.Custom.RocketLeague import RLGymFactory
+        env = RLGymFactory.build_rlgym_from_config(cfg, existing_env=existing_env)
     else:
         env = existing_env
 
@@ -49,8 +52,16 @@ def build_vars(cfg, existing_env=None, env_space_shapes=None):
     agent = AgentFactory.get_from_cfg(cfg)
 
     models = PolicyFactory.get_from_cfg(cfg, env=env, env_space_shapes=env_space_shapes)
+
     policy = models["policy"]
+    print(f"Policy params: {policy.num_params}")
+    print(f"Policy input shape: {policy.input_shape}")
+    print(f"Policy output shape: {policy.output_shape}")
+
     value_net = models["value_estimator"]
+    print(f"Value net params: {value_net.num_params}")
+    print(f"Value net input shape: {value_net.input_shape}")
+    print(f"Value net output shape: {value_net.output_shape}")
     policy.to(device)
     value_net.to(device)
     models.clear()

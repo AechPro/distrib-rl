@@ -1,5 +1,6 @@
 from rlgym.utils.action_parsers import ContinuousAction, DefaultAction, DiscreteAction
 from rlgym_tools.extra_action_parsers.kbm_act import KBMAction
+from .ActionParsers import NectoActionParser
 
 from Utils.FactoryBuilder import build_component_factory
 
@@ -7,7 +8,8 @@ _builders = {
     "continuous": ContinuousAction,
     "default": DefaultAction,
     "discrete": DiscreteAction,
-    "kbm": KBMAction
+    "kbm": KBMAction,
+    "necto": NectoActionParser
 }
 
 _arg_transformers = {}

@@ -1,7 +1,7 @@
 absl-py==0.7.1
 gym==0.21.0
 gym3==0.3.3
-rlgym @ git+https://github.com/lucas-emery/rocket-league-gym.git@a059108ebcf85d491ea902ab53c0f9b540151c83
+rlgym>=1.2.0, <2.0.0
 pyjson5==1.6.1
 matplotlib>=3.1, <4
 MinAtar==1.0.10

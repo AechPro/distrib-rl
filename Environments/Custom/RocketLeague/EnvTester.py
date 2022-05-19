@@ -8,8 +8,7 @@ if __name__ == "__main__":
             "tick_skip": 8,
             "team_size": 2,
             "game_speed": 1,
-            "self_play": True,
-            "spawn_opponents": False,
+            "spawn_opponents": True,
             "env_id":2
           }}
 

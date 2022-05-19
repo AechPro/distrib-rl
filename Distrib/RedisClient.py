@@ -84,8 +84,7 @@ class RedisClient(object):
                 break
 
             time.sleep(1)
-
-
+        
         cfg = dict(json.loads(self.redis.get(RedisKeys.SERVER_CONFIG_KEY).decode("utf-8")))
         self.max_queue_size = cfg["experience_replay"]["max_buffer_size"]
         print("Fetched new config!")

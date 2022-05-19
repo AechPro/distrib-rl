@@ -29,7 +29,6 @@ def main():
         print(traceback.format_exc())
     finally:
         try:
-            print("\nATTEMPTING TO SET REDIS TO STOPPING STATUS")
             server.cleanup()
         except:
             print("\n!!!CRITICAL FAILURE!!!\nUNABLE TO SET REDIS STATE TO STOPPING AFTER EXCEPTION IN CLIENT\n")
