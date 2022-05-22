@@ -11,6 +11,7 @@ class RedisClient(object):
     def __init__(self):
         self.redis = None
         self.current_epoch = -1
+        self.current_value_epoch = -1
         self.max_queue_size = 0
         self._message_serializer = MessageSerializer()
     
@@ -61,6 +62,22 @@ class RedisClient(object):
             return []
         return [self._message_serializer.unpack(packed_result) for packed_result in packed_results]
 
+    def get_latest_value_params(self):
+        red = self.redis
+        epoch = red.get(RedisKeys.SERVER_CURRENT_UPDATE_KEY)
+        if epoch is not None:
+            epoch = int(epoch)
+
+        if epoch == self.current_value_epoch or epoch is None:
+            return None
+
+        self.current_value_epoch = epoch
+
+        encoded_val = red.get(RedisKeys.SERVER_VAL_PARAMS_KEY)
+        if encoded_val is None:
+            return None
+        return self._message_serializer.unpack(encoded_val)
+
     def get_latest_update(self):
         red = self.redis
         epoch = red.get(RedisKeys.SERVER_CURRENT_UPDATE_KEY)
@@ -68,25 +85,23 @@ class RedisClient(object):
             epoch = int(epoch)
 
         if epoch == self.current_epoch or epoch is None:
-            return None, None, None, None, False
+            return None, None, None, False
 
         self.current_epoch = epoch
 
         pipe = red.pipeline()
         pipe.get(RedisKeys.SERVER_POLICY_PARAMS_KEY)
-        pipe.get(RedisKeys.SERVER_VAL_PARAMS_KEY)
         pipe.get(RedisKeys.SERVER_STRATEGY_FRAMES_KEY)
         pipe.get(RedisKeys.SERVER_STRATEGY_HISTORY_KEY)
         results = pipe.execute()
 
-        packed_policy, packed_val, packed_frames, packed_history = results
+        packed_policy, packed_frames, packed_history = results
 
         policy = self._message_serializer.unpack(packed_policy)
-        val = self._message_serializer.unpack(packed_val)
         frames = self._message_serializer.unpack(packed_frames)
         history = self._message_serializer.unpack(packed_history)
 
-        return policy, val, frames, history, True
+        return policy, frames, history, True
 
     def get_cfg(self):
         import numpy as np

@@ -17,11 +17,12 @@ from multiprocessing import Process
 class MPFProcess(Process):
     STOP_KEYWORD = "STOP MPF PROCESS"
 
-    def __init__(self, process_name = "unnamed_mpf_process", loop_wait_period=None):
+    def __init__(self, process_name = "unnamed_mpf_process", loop_wait_period=None, process_all_updates=False):
         Process.__init__(self)
         self._out = None
         self._inp = None
         self._loop_wait_period = loop_wait_period
+        self._process_all_updates = process_all_updates
         self.name = process_name
         self.shared_memory = None
         self.task_checker = None
@@ -58,7 +59,7 @@ class MPFProcess(Process):
                 #Here is the simple loop to be executed by this process until termination.
 
                 #Check for new inputs from the main process.
-                if self.task_checker.check_for_update():
+                while self.task_checker.check_for_update():
                     self._MPFLog.debug("MPFProcess {} got update {}".format(self.name, self.task_checker.header))
 
                     #If we are told to stop running, do so.
@@ -70,6 +71,8 @@ class MPFProcess(Process):
                     #Otherwise, update with the latest main process message.
                     self._MPFLog.debug("MPFProcess {} sending update to subclass".format(self.name))
                     self.update(self.task_checker.header, self.task_checker.latest_data)
+                    if not self._process_all_updates:
+                        break
 
                 #Take a step.
                 self.step()
@@ -80,6 +83,10 @@ class MPFProcess(Process):
                 #Wait if requested.
                 if self._loop_wait_period is not None and self._loop_wait_period > 0:
                     time.sleep(self._loop_wait_period)
+
+        except KeyboardInterrupt:
+            self._MPFLog.debug("MPFProcess {} is exiting due to KeyboardInterrupt\n".format(self.name))
+            raise sys.exit(0)
 
         except:
             #Catch-all because I'm lazy.
