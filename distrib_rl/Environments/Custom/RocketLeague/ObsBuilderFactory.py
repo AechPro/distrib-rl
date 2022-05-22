@@ -1,7 +1,7 @@
 from rlgym.utils.obs_builders import AdvancedObs, DefaultObs
 from rlgym_tools.extra_obs.advanced_padder import AdvancedObsPadder
 from rlgym_tools.extra_obs.advanced_stacker import AdvancedStacker
-from rlgym_tools.extra_obs.general_stacking import GeneralStacker
+from .ObsBuilders.general_stacking import GeneralStacker
 from .ObsBuilders.DefaultWithTimeoutsObsBuilder import DefaultWithTimeoutsObsBuilder
 
 from distrib_rl.Utils.FactoryBuilder import build_component_factory
