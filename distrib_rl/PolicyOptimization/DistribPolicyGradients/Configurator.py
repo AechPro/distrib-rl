@@ -20,12 +20,12 @@ def build_env(cfg, existing_env=None):
     env_name = cfg["env_id"].lower()
     if existing_env is None:
         if "rocket" in env_name:
-            from Environments.Custom.RocketLeague import RLGymFactory
+            from distrib_rl.Environments.Custom.RocketLeague import RLGymFactory
             env = RLGymFactory.build_rlgym_from_config(cfg)
         else:
             env = gym.make(cfg["env_id"])
     elif "rocket" in env_name:
-        from Environments.Custom.RocketLeague import RLGymFactory
+        from distrib_rl.Environments.Custom.RocketLeague import RLGymFactory
         env = RLGymFactory.build_rlgym_from_config(cfg, existing_env=existing_env)
     else:
         env = existing_env

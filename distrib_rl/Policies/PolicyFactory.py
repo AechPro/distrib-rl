@@ -44,13 +44,13 @@ def _get_model_object(policy_type, action_type):
 
     else:
         if at == "discrete":
-            from Policies.FeedForward import DiscreteFF
+            from distrib_rl.Policies.FeedForward import DiscreteFF
             return DiscreteFF
         elif at == "continuous":
-            from Policies.FeedForward import ContinuousFF
+            from distrib_rl.Policies.FeedForward import ContinuousFF
             return ContinuousFF
         elif at == "multi_discrete" or at == "multidiscrete":
-            from Policies.FeedForward import MultiDiscreteFF
+            from distrib_rl.Policies.FeedForward import MultiDiscreteFF
             return MultiDiscreteFF
 
     print("UNABLE TO LOCATE POLICY IMPLEMENTATION MATCHING TYPES: ",policy_type, action_type)

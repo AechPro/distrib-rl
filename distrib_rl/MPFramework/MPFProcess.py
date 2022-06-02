@@ -38,8 +38,8 @@ class MPFProcess(Process):
         try:
             #We import everything necessary here to ensure that the libraries we need will be imported into the new
             #process memory instead of the main process memory.
-            from MPFramework import MPFResultPublisher
-            from MPFramework import MPFTaskChecker
+            from distrib_rl.MPFramework import MPFResultPublisher
+            from distrib_rl.MPFramework import MPFTaskChecker
             import logging
             import time
 
