@@ -24,11 +24,11 @@ def parse_function(function_name):
         function = nn.Sigmoid
 
     elif f in ("clamped", "clamped_linear", "clamp"):
-        from Utils.Torch.TorchFunctions import ClampedLinear
+        from distrib_rl.Utils.Torch.TorchFunctions import ClampedLinear
         function = ClampedLinear
 
     elif f == 'flatten':
-        from Utils.Torch.TorchFunctions import Flatten
+        from distrib_rl.Utils.Torch.TorchFunctions import Flatten
         function = Flatten
 
     elif f in ('bn','batch_norm','batchnorm','batch norm'):
@@ -47,7 +47,7 @@ def parse_layer_type(layer_info):
 
     if "lstm" in lf:
         raise NotImplementedError
-        # from Policies.PyTorch.Recurrent import LSTMModule
+        # distrib_rl.from Policies.PyTorch.Recurrent import LSTMModule
         #
         # out_features = int(lf[lf.find("lstm")+len("lstm"):])
         # layer = LSTMModule

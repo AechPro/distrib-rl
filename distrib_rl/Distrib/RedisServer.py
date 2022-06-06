@@ -75,7 +75,16 @@ class RedisServer(object):
         return returns
 
     def get_policy_rewards(self):
-        return self._atomic_pop_all(RedisKeys.CLIENT_POLICY_REWARD_KEY)
+        # rewards are pushed as packed/compressed lists of scalar values
+        # atomic_pop_all returns all entries for a given key as a list, giving
+        # us a list of lists of reward scalars. We need to flatten it before we
+        # return.
+        reward_lists = self._atomic_pop_all(RedisKeys.CLIENT_POLICY_REWARD_KEY)
+
+        # Actual flattening happens here. Not very readable, but it's supposedly
+        # the fastest way to flatten a list[list[Any]], per
+        # https://stackoverflow.com/a/952952
+        return [reward for reward_list in reward_lists for reward in reward_list] 
 
     def push_update(self, policy_params, val_params, strategy_frames, strategy_history, current_epoch):
         red = self.redis

@@ -5,7 +5,7 @@ np.random.seed(0)
 import torch
 torch.manual_seed(0)
 
-from Utils import TrainingReplay, ConfigLoader
+from distrib_rl.Utils import TrainingReplay, ConfigLoader
 
 
 def main():

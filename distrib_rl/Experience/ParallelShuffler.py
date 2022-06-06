@@ -15,8 +15,8 @@ class ParallelShuffler(MPFProcess):
 
     def init(self):
         import numpy
-        from Experience import DistribExperienceManager
-        from Distrib import RedisServer
+        from distrib_rl.Experience import DistribExperienceManager
+        from distrib_rl.Distrib import RedisServer
         from time import sleep
 
         self.sleep_fn = sleep

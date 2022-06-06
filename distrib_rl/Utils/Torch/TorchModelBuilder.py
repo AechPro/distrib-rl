@@ -1,7 +1,7 @@
 import numpy as np
 import torch.nn as nn
 from distrib_rl.Utils.Torch.TorchFunctions import *
-#from Policies.PyTorch.Recurrent import LSTMModule
+#from distrib_rl.Policies.PyTorch.Recurrent import LSTMModule
 
 def build_from_json(model_json, input_shape, output_shape, channels_first=True):
     #This assumes that the input shape is (seq, features) for recurrent/ff architectures and
