@@ -1,6 +1,6 @@
 from redis import Redis
-from distrib_rl.Utils import RedisHelpers as helpers, CompressionSerialisation as cser
 from distrib_rl.Distrib import RedisKeys
+from distrib_rl.Distrib.MessageSerialization import MessageSerializer
 import time
 import pyjson5 as json
 import os
@@ -23,6 +23,7 @@ class RedisServer(object):
         self.last_sps_measure = time.time()
         self.accumulated_sps = 0
         self.steps_per_second = 0
+        self._message_serializer = MessageSerializer()
 
     def connect(self, clear_existing=False, new_server_instance=True):
         ip = os.environ.get("REDIS_HOST", default='localhost')
@@ -74,29 +75,27 @@ class RedisServer(object):
         return returns
 
     def get_policy_rewards(self):
-        new_policy_rewards = helpers.atomic_pop_all(self.redis, RedisKeys.CLIENT_POLICY_REWARD_KEY)
-        rews = []
-        for reward_list in new_policy_rewards:
-            rews += cser.unpack(reward_list)
-        return rews
+        return self._atomic_pop_all(RedisKeys.CLIENT_POLICY_REWARD_KEY)
 
     def push_update(self, policy_params, val_params, strategy_frames, strategy_history, current_epoch):
         red = self.redis
 
-        encoded_policy = helpers.encode_numpy(policy_params)
-        encoded_val = helpers.encode_numpy(val_params)
-        encoded_frames = helpers.encode_numpy(strategy_frames)
-        encoded_history = helpers.encode_numpy(strategy_history)
+        packed_policy = self._message_serializer.pack(policy_params)
+        packed_val = self._message_serializer.pack(val_params)
+        packed_frames = self._message_serializer.pack(strategy_frames)
+        packed_history = self._message_serializer.pack(strategy_history)
 
         pipe = red.pipeline()
-        pipe.set(RedisKeys.SERVER_POLICY_PARAMS_KEY, encoded_policy)
-        pipe.set(RedisKeys.SERVER_VAL_PARAMS_KEY, encoded_val)
-        pipe.set(RedisKeys.SERVER_STRATEGY_FRAMES_KEY, encoded_frames)
-        pipe.set(RedisKeys.SERVER_STRATEGY_HISTORY_KEY, encoded_history)
+        pipe.set(RedisKeys.SERVER_POLICY_PARAMS_KEY, packed_policy)
+        pipe.set(RedisKeys.SERVER_VAL_PARAMS_KEY, packed_val)
+        pipe.set(RedisKeys.SERVER_STRATEGY_FRAMES_KEY, packed_frames)
+        pipe.set(RedisKeys.SERVER_STRATEGY_HISTORY_KEY, packed_history)
         pipe.set(RedisKeys.SERVER_CURRENT_UPDATE_KEY, current_epoch)
         pipe.execute()
 
     def push_cfg(self, cfg):
+        self._configure_serialization(cfg)
+
         dev = cfg["device"]
         rng = cfg["rng"]
 
@@ -106,6 +105,14 @@ class RedisServer(object):
 
         cfg["rng"] = rng
         cfg["device"] = dev
+
+    def _configure_serialization(self, cfg):
+        networking_cfg = cfg.get("networking", {})
+        compression_type = networking_cfg.get("compression", None)
+        if compression_type:
+            self._message_serializer = MessageSerializer(compression_type=compression_type)
+        else:
+            self._message_serializer = MessageSerializer()
 
     def signal_ready(self):
         self.redis.set(RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.RUNNING_STATUS)
@@ -129,16 +136,14 @@ class RedisServer(object):
                 time.sleep(0.1)
                 continue
 
-            in_space, out_space = cser.unpack(data)
+            in_space, out_space = self._message_serializer.unpack(data)
         return in_space, out_space
 
     def _update_buffer(self):
-        new_returns = helpers.atomic_pop_all(self.redis, RedisKeys.CLIENT_EXPERIENCE_KEY)
+        returns = self._atomic_pop_all(RedisKeys.CLIENT_EXPERIENCE_KEY)
         collected_timesteps = 0
-        for packet in new_returns:
-            decoded = cser.unpack(packet)
-
-            for serialized_trajectory in decoded:
+        for trajectories in returns:
+            for serialized_trajectory in trajectories:
                 n_timesteps = len(serialized_trajectory[0])
                 collected_timesteps += n_timesteps
                 self.internal_buffer.append((serialized_trajectory, n_timesteps))
@@ -161,6 +166,15 @@ class RedisServer(object):
             self.steps_per_second = 0.9 * self.steps_per_second + 0.1 * self.accumulated_sps / elapsed
             self.accumulated_sps = 0
             self.last_sps_measure = time.time()
+
+    def _atomic_pop_all(self, key):
+        pipe = self.redis.pipeline()
+        pipe.lrange(key, 0, -1)
+        pipe.delete(key)
+        packed_results = pipe.execute()[0]
+        if packed_results is None:
+            return []
+        return [self._message_serializer.unpack(packed_result) for packed_result in packed_results]
 
     def disconnect(self):
         if self.redis is not None:
