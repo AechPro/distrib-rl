@@ -24,6 +24,7 @@ setup(
         'gym3==0.3.3',
         'rlgym==1.2.0',
         'pyjson5==1.6.1',
+        'lz4==4.0.0',
         'matplotlib>=3.1, <4',
         'MinAtar==1.0.10',
         'msgpack==1.0.2',
