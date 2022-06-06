@@ -1,6 +1,5 @@
 from distrib_rl.Distrib import RedisKeys
-from distrib_rl.Experience import Trajectory, ExperienceReplay
-from distrib_rl.Utils import CompressionSerialisation as cser
+from distrib_rl.Experience import ExperienceReplay
 
 class DistribExperienceManager(object):
     def __init__(self, cfg, client=None, server=None):
@@ -13,9 +12,7 @@ class DistribExperienceManager(object):
         if self.client is None:
             return
 
-        encoded = cser.pack(trajectories)
-
-        self.client.push_data(RedisKeys.CLIENT_EXPERIENCE_KEY, encoded, encoded=True)
+        self.client.push_data(RedisKeys.CLIENT_EXPERIENCE_KEY, trajectories)
 
     def get_timesteps_as_batches(self, num_timesteps, batch_size):
         if self.server is None:

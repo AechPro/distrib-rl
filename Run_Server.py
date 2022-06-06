@@ -6,8 +6,8 @@ np.random.seed(0)
 import torch
 torch.manual_seed(0)
 
-from PolicyOptimization.DistribPolicyGradients import Server
-from Experiments import ExperimentManager
+from distrib_rl.PolicyOptimization.DistribPolicyGradients import Server
+from distrib_rl.Experiments import ExperimentManager
 import traceback
 
 def main():
