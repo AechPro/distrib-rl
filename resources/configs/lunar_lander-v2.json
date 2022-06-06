@@ -1,0 +1,160 @@
+{
+  "device": "cuda:0",
+  "seed": 123,
+  "log_to_wandb": true,
+  "env_id": "LunarLander-v2",
+  "agent": {"type" : "pg"},
+
+  "value_estimator":
+  {
+    "type" : ["ff", "continuous"],
+    "init_type": "normc",
+    "init_std" : 1.4,
+    "action_init_std": 1.0,
+    "action_noise_std" : 0.0,
+    "observation_clip_range" : null,
+    "normalize_observations" : false,
+    "action_parser" : "linear",
+
+    "layers" :
+    {
+      "ff1":
+      {
+        "type" : "ff",
+        "num_nodes" : 128,
+        "activation_function" : "relu",
+        "extra" : null
+      },
+      "ff2":
+      {
+        "type" : "ff",
+        "num_nodes" : 128,
+        "activation_function" : "relu",
+        "extra" : null
+      },
+      "ff3":
+      {
+        "type" : "ff",
+        "num_nodes" : 128,
+        "activation_function" : "relu",
+        "extra" : null
+      },
+      "ff4":
+      {
+        "type" : "ff",
+        "num_nodes" : 128,
+        "activation_function" : "relu",
+        "extra" : null
+      },
+      "output" :
+      {
+        "type": "output",
+        "activation_function" : "linear",
+        "extra" : null
+      }
+    }
+  },
+
+  "policy":
+  {
+    "type" : ["ff", "discrete"],
+    "init_type": "normc",
+    "init_std": 1.0,
+    "action_init_std": 0.01,
+    "action_noise_std": 0.0,
+    "observation_clip_range": null,
+    "normalize_observations": false,
+    "action_parser": "none",
+    "layers":
+    {
+      "ff1":
+      {
+        "type": "ff",
+        "extra": null,
+        "num_nodes": 64,
+        "activation_function": "tanh"
+      },
+      "ff2":
+      {
+        "type": "ff",
+        "extra": null,
+        "num_nodes": 64,
+        "activation_function": "tanh"
+      },
+
+      "output":
+      {
+          "type": "out",
+          "extra": [2,2,2,2],
+          "num_nodes": 21,
+          "activation_function": "softmax"
+      }
+    }
+  },
+
+  "policy_gradient_optimizer":
+  {
+    "type": "dsgd",
+    "step_size":  0.0015
+  },
+
+  "novelty_gradient_optimizer":
+  {
+    "type": "dsgd",
+    "step_size": 3e-4
+  },
+
+  "value_gradient_optimizer":
+  {
+    "type": "torch rmsprop",
+    "lr": 1e-4
+  },
+
+  "policy_optimizer":
+  {
+    "type": "pg",
+    "gamma": 0.99,
+    "max_kl": 1.0,
+    "n_epochs": 10,
+    "batch_size": 500,
+    "clip_range": 0.2,
+    "gae_lambda": 0.95,
+    "entropy_coef": 0.0,
+    "eps_per_eval": 5,
+    "max_timesteps": 1e6,
+    "timesteps_per_update": 5000,
+    "new_returns_proportion": 0.1,
+    "value_updates_per_batch": 10
+  },
+
+  "adaptive_omega":
+  {
+    "mean_threshold": 1.035,
+    "reward_history_size": 40,
+    "min_value": 0.0,
+    "max_value": 1,
+    "default": 0.0
+  },
+
+  "experience_replay":
+  {
+    "max_buffer_size": 10000
+  },
+
+  "strategy":
+  {
+    "max_history_size": 200,
+    "num_frames": 200,
+    "steps_per_eval" : 1,
+    "num_fd_perturbations" : 250,
+    "fd_noise_std" : 0.1
+  },
+
+  "lr_adjuster":
+  {
+    "clip_target": 0.2,
+    "rate": 1.1,
+    "max_lr": 1,
+    "min_lr": 1e-7
+  }
+}
