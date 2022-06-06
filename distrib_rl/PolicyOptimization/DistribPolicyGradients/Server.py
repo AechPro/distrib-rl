@@ -109,7 +109,8 @@ class Server(object):
         # print("Collected {} policy rewards\nStatistics: {}".format(len(rewards), RLMath.compute_array_stats(rewards)))
 
         self.policy_reward = reward
-        self.server.redis.set(RedisKeys.MEAN_POLICY_REWARD_KEY, reward)
+        print(f"setting server policy_reward to {reward}")
+        #self.server.redis.set(RedisKeys.MEAN_POLICY_REWARD_KEY, reward)
 
 
     def update_server(self, current_epoch):

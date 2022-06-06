@@ -10,6 +10,7 @@ class OpponentSelector(object):
         self.known_policies = []
 
         self.client = RedisClient()
+        self.client.connect()
 
     def get_opponent(self):
         decoded = self.client.get_data(RedisKeys.MARL_CURRENT_OPPONENT_KEY)
@@ -43,13 +44,10 @@ class OpponentSelector(object):
         opponent_num = self.rng.choice(indices, p=probs)
         params = self.known_policies[opponent_num]
 
-        self.client.set(RedisKeys.MARL_CURRENT_OPPONENT_KEY, (params, opponent_num))
+        self.client.set_data(RedisKeys.MARL_CURRENT_OPPONENT_KEY, (params, opponent_num))
 
     def update_ratings(self):
         results = self.client.atomic_pop_all(RedisKeys.MARL_MATCH_RESULTS_KEY)
-
-        if results is None:
-            return
 
         for result in results:
             opponent_num, victory = result

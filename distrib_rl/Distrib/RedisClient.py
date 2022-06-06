@@ -32,12 +32,12 @@ class RedisClient(object):
         if data is None:
             packed = data
         else:
-            packed = self._message_serializer.pack(packed)
+            packed = self._message_serializer.pack(data)
 
         return self.redis.set(key, packed)
 
     def get_data(self, key):
-        packed = self.red.get(key)
+        packed = self.redis.get(key)
         if packed is None:
             return packed
         return self._message_serializer.unpack(packed)
