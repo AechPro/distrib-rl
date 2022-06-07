@@ -1,5 +1,5 @@
 # Distributed Reinforcement Learning
-A platform to perform on-policy Reinforcement Learning with multiple simultaneous computers. The platform's structure is such that all data 
+A platform to perform on-policy Reinforcement Learning with multiple asynchronous computers. The platform's structure is such that all data 
 from connected workers is routed to a Redis server, where a learner consumes the available data and uses it to compute updates to a policy 
 and Value Function estimator. These models are then passed to Redis so workers can update their local copies.
 
