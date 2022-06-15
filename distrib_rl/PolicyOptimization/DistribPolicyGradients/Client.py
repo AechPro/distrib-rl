@@ -58,6 +58,7 @@ class Client(object):
         if len(agent.ep_rewards) > 0:
             rews = msgpack.packb(agent.ep_rewards)
             client.push_data(RedisKeys.CLIENT_POLICY_REWARD_KEY, rews, encoded=True)
+            agent.ep_rewards = []
         print("transmitted {} in {:7.5f}".format(total_timesteps, time.perf_counter() - t1))
 
     def update_models(self):
