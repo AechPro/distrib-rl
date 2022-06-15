@@ -134,6 +134,16 @@ class Server(object):
         self.policy_gradient_optimizer.save(optim_dir, "policy_gradient_optimizer_{}".format(self.epoch))
         self.value_gradient_optimizer.save(optim_dir, "value_gradient_optimizer_{}".format(self.epoch))
 
+    def load_weights(self, load_dir, load_epoch):
+        print(f"LOADING WEIGHTS FROM EPOCH {load_epoch} OF RUN AT PATH {load_dir}")
+        models_dir = os.path.join(load_dir, "models")
+        optim_dir = os.path.join(load_dir, "grad_optimizer")
+
+        self.policy.load(models_dir, "policy_{}.npy".format(load_epoch))
+        self.value_net.load(models_dir, "value_net_{}.npy".format(load_epoch))
+        self.policy_gradient_optimizer.load(optim_dir, "policy_gradient_optimizer_{}".format(load_epoch))
+        self.value_gradient_optimizer.load(optim_dir, "value_gradient_optimizer_{}".format(load_epoch))
+
     def set_base_dir(self, directory):
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -224,6 +234,10 @@ class Server(object):
         self.policy_reward = None
         self.epoch_info = {}
 
+        if "load_prev_weights" in cfg.keys():
+            lpw_cfg = cfg["load_prev_weights"]
+            if ("path" in lpw_cfg.keys()) and ("epoch" in lpw_cfg.keys()):
+                self.load_weights(lpw_cfg["path"], lpw_cfg["epoch"])
 
         self.opponent_selector.submit_policy(self.policy.get_trainable_flat(force_update=True))
         self.strategy_optimizer.update()
