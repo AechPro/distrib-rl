@@ -5,6 +5,7 @@ from distrib_rl.Experience import ExperienceReplay
 from distrib_rl.Strategy import StrategyOptimizer
 from distrib_rl.Utils import AdaptiveOmega
 from distrib_rl.PolicyOptimization.Learners import *
+import distrib_rl.Environments.Custom
 from distrib_rl.Utils.ExtraLog import ExtraLogger
 import gym
 import numpy as np
