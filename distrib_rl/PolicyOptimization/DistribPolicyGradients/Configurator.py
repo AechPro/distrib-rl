@@ -5,7 +5,7 @@ from distrib_rl.Experience import ExperienceReplay
 from distrib_rl.Strategy import StrategyOptimizer
 from distrib_rl.Utils import AdaptiveOmega
 from distrib_rl.PolicyOptimization.Learners import *
-from distrib_rl.Utils.ExtraLog import ExtraLogClient
+from distrib_rl.Utils.ExtraLog import ExtraLogger
 import gym
 import numpy as np
 import random
@@ -39,8 +39,8 @@ def build_vars(cfg, existing_env=None, env_space_shapes=None):
     cfg["rng"] = np.random.RandomState(seed)
     device = cfg["device"]
 
-    if "extra_logging" in cfg:
-        extra_logger = ExtraLogClient(cfg["extra_logging"])
+    if "extra_log" in cfg:
+        extra_logger = ExtraLogger(cfg["extra_log"])
     else:
         extra_logger = None
 
@@ -94,4 +94,4 @@ def build_vars(cfg, existing_env=None, env_space_shapes=None):
     # learner = PPONS(strategy_optimizer, cfg, policy, value_net, policy_gradient_optimizer, value_gradient_optimizer, gradient_builder, omega)
 
     return env, experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, agent, policy, \
-           strategy_optimizer, omega, value_net, novelty_gradient_optimizer, learner
+           strategy_optimizer, omega, value_net, novelty_gradient_optimizer, learner, extra_logger

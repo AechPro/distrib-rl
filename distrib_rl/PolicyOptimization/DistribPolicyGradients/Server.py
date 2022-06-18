@@ -19,6 +19,7 @@ class Server(object):
         self.gradient_builder = None
         self.adaptive_omega = None
         self.policy_reward = None
+        self.extra_logger = None
         self.exp_manager = None
         self.experience = None
         self.wandb_run = None
@@ -63,6 +64,10 @@ class Server(object):
             self.server.redis.set(RedisKeys.RUNNING_REWARD_MEAN_KEY, float(self.exp_manager.rew_mean))
             self.server.redis.set(RedisKeys.RUNNING_REWARD_STD_KEY, float(self.exp_manager.rew_std))
             self.epoch_info["steps_per_second"] = int(round(self.exp_manager.steps_per_second))
+
+            if self.extra_logger is not None:
+                self.epoch_info["extra_log"] = self.extra_logger.pop_redis_mean_aggregates() 
+
             self.report_epoch()
 
         self.epoch_info.clear()
@@ -212,7 +217,8 @@ class Server(object):
         self.adaptive_omega, \
         self.value_net, \
         self.novelty_gradient_optimizer, \
-        self.learner = Configurator.build_vars(cfg, env_space_shapes=(in_shape, out_shape))
+        self.learner, \
+        self.extra_logger = Configurator.build_vars(cfg, env_space_shapes=(in_shape, out_shape))
 
         print("Starting new experience manager...")
         self.exp_manager = ParallelExperienceManager(cfg)

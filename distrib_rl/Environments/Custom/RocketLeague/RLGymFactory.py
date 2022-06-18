@@ -57,8 +57,9 @@ def build_rlgym_from_config(config, existing_env=None, extra_logger=None):
         terminal_conditions = build_terminal_conditions_from_config(cfg["terminal_conditions"])
     
     if extra_logger is not None:
-        if hasattr(reward_fn, "_inject_extra_logger") and callable(reward_fn._inject_extra_logger):
-            reward_fn._inject_extra_logger(extra_logger)
+        for fn in [reward_fn, obs_builder]:
+            if hasattr(fn, "_inject_extra_logger") and callable(fn._inject_extra_logger):
+                fn._inject_extra_logger(extra_logger)
 
     if existing_env:
         match = existing_env._match
