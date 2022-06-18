@@ -63,6 +63,8 @@ class ExtraLogger():
                 self.csv_dir.mkdir(exist_ok=True)
             else:
                 self.csv_dir = Path(".")
+        else:
+            self.csv = False
             
         if cfg.get("wandb_via_redis", False):
             self.redis_client = RedisClient()
