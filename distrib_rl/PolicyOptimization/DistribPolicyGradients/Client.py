@@ -118,8 +118,8 @@ class Client(object):
         self.cfg = self.client.get_cfg()
 
         self.env, self.experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, \
-        self.agent, self.policy, self.strategy_optimizer, adaptive_omega, self.value_net, \
-        novelty_gradient_optimizer, learner = Configurator.build_vars(self.cfg, existing_env=env)
+        self.agent, self.policy, self.strategy_optimizer, adaptive_omega, value_net, \
+        novelty_gradient_optimizer, learner, extra_logger = Configurator.build_vars(self.cfg, existing_env=env)
 
         self.env.reset()
         self.transmit_env_spaces()

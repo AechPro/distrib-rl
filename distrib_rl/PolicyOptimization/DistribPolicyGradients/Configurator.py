@@ -6,6 +6,7 @@ from distrib_rl.Strategy import StrategyOptimizer
 from distrib_rl.Utils import AdaptiveOmega
 from distrib_rl.PolicyOptimization.Learners import *
 import distrib_rl.Environments.Custom
+from distrib_rl.Utils.ExtraLog import ExtraLogger
 import gym
 import numpy as np
 import random
@@ -16,17 +17,17 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-def build_env(cfg, existing_env=None):
+def build_env(cfg, existing_env=None, extra_logger=None):
     env_name = cfg["env_id"].lower()
     if existing_env is None:
         if "rocket" in env_name:
-            from Environments.Custom.RocketLeague import RLGymFactory
-            env = RLGymFactory.build_rlgym_from_config(cfg)
+            from distrib_rl.Environments.Custom.RocketLeague import RLGymFactory
+            env = RLGymFactory.build_rlgym_from_config(cfg, extra_logger=extra_logger)
         else:
             env = gym.make(cfg["env_id"])
     elif "rocket" in env_name:
-        from Environments.Custom.RocketLeague import RLGymFactory
-        env = RLGymFactory.build_rlgym_from_config(cfg, existing_env=existing_env)
+        from distrib_rl.Environments.Custom.RocketLeague import RLGymFactory
+        env = RLGymFactory.build_rlgym_from_config(cfg, existing_env=existing_env, extra_logger=extra_logger)
     else:
         env = existing_env
 
@@ -38,8 +39,14 @@ def build_vars(cfg, existing_env=None, env_space_shapes=None):
     seed = cfg["seed"]
     cfg["rng"] = np.random.RandomState(seed)
     device = cfg["device"]
+
+    if "extra_log" in cfg:
+        extra_logger = ExtraLogger(cfg["extra_log"])
+    else:
+        extra_logger = None
+
     if env_space_shapes is None:
-        env = build_env(cfg, existing_env=existing_env)
+        env = build_env(cfg, existing_env=existing_env, extra_logger=extra_logger)
     else:
         env = None
 
@@ -50,6 +57,8 @@ def build_vars(cfg, existing_env=None, env_space_shapes=None):
 
     experience = ExperienceReplay(cfg)
     agent = AgentFactory.get_from_cfg(cfg)
+    if extra_logger is not None:
+        agent.extra_logger = extra_logger
 
     models = PolicyFactory.get_from_cfg(cfg, env=env, env_space_shapes=env_space_shapes)
 
@@ -86,4 +95,4 @@ def build_vars(cfg, existing_env=None, env_space_shapes=None):
     # learner = PPONS(strategy_optimizer, cfg, policy, value_net, policy_gradient_optimizer, value_gradient_optimizer, gradient_builder, omega)
 
     return env, experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, agent, policy, \
-           strategy_optimizer, omega, value_net, novelty_gradient_optimizer, learner
+           strategy_optimizer, omega, value_net, novelty_gradient_optimizer, learner, extra_logger

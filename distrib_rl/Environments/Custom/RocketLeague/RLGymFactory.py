@@ -12,7 +12,7 @@ from distrib_rl.Environments.Custom.RocketLeague.StateSetterFactory import build
 from distrib_rl.Environments.Custom.RocketLeague.TerminalConditionsFactory import build_terminal_conditions_from_config
 
 
-def build_rlgym_from_config(config, existing_env=None):
+def build_rlgym_from_config(config, existing_env=None, extra_logger=None):
     cfg = config["rlgym"]
 
     action_parser = DiscreteAction()
@@ -55,6 +55,11 @@ def build_rlgym_from_config(config, existing_env=None):
         reward_fn = build_reward_fn_from_config(cfg["rewards"])
     if cfg.get("terminal_conditions", False):
         terminal_conditions = build_terminal_conditions_from_config(cfg["terminal_conditions"])
+    
+    if extra_logger is not None:
+        for fn in [reward_fn, obs_builder]:
+            if hasattr(fn, "_inject_extra_logger") and callable(fn._inject_extra_logger):
+                fn._inject_extra_logger(extra_logger)
 
     if existing_env:
         match = existing_env._match

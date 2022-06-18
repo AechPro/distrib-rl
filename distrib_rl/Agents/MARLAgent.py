@@ -17,6 +17,7 @@ class MARLAgent(object):
         self.current_ep_rew = 0
         self.policies = None
         self.n_agents = cfg["rlgym"]["team_size"] * 2 if cfg["rlgym"]["spawn_opponents"] else cfg["rlgym"]["team_size"]
+        self.extra_logger = None
 
 
     @torch.no_grad()
@@ -86,6 +87,9 @@ class MARLAgent(object):
                 break
 
         self.leftover_obs = next_obs.copy()
+
+        if self.extra_logger is not None:
+            self.extra_logger.aggregate_data(steps=cumulative_timesteps)
 
         for i in range(agents_to_save):
             trajectories[i].final_obs = next_obs[i]
