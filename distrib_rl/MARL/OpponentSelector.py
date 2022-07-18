@@ -1,13 +1,5 @@
-import msgpack_numpy
-import msgpack
-msgpack_numpy.patch()
-
 from trueskill import rate_1vs1, Rating
-from distrib_rl.Distrib import RedisKeys
-from redis import Redis
-import time
-import os
-
+from distrib_rl.Distrib import RedisClient, RedisKeys
 
 class OpponentSelector(object):
     def __init__(self, cfg):
@@ -17,24 +9,18 @@ class OpponentSelector(object):
         self.policy_skill = Rating(100)
         self.known_policies = []
 
-        ip = os.environ.get("REDIS_HOST", default='localhost')
-        port = os.environ.get("REDIS_PORT", default=6379)
-        password = os.environ.get("REDIS_PASSWORD", default=None)
-
-        self.redis = Redis(host=ip, port=port, password=password)
+        self.client = RedisClient()
+        self.client.connect()
 
     def get_opponent(self):
-        encoded = self.redis.get(RedisKeys.MARL_CURRENT_OPPONENT_KEY)
-        if encoded is None:
+        decoded = self.client.get_data(RedisKeys.MARL_CURRENT_OPPONENT_KEY)
+        if decoded is None:
             return None, -1
-
-        decoded = msgpack.unpackb(encoded)
         return decoded
 
     def update_opponent(self):
         if self.cfg["rng"].randint(0, 10) > 2 or len(self.player_skills) == 0:
-            encoded = msgpack.packb((-1, -1))
-            self.redis.set(RedisKeys.MARL_CURRENT_OPPONENT_KEY, encoded)
+            self.client.set_data(RedisKeys.MARL_CURRENT_OPPONENT_KEY, (-1, -1))
             return
 
         skills = []
@@ -58,24 +44,15 @@ class OpponentSelector(object):
         opponent_num = self.rng.choice(indices, p=probs)
         params = self.known_policies[opponent_num]
 
-        encoded = msgpack.packb((params, opponent_num))
-        self.redis.set(RedisKeys.MARL_CURRENT_OPPONENT_KEY, encoded)
+        self.client.set_data(RedisKeys.MARL_CURRENT_OPPONENT_KEY, (params, opponent_num))
 
     def update_ratings(self):
-        red = self.redis
-        key = RedisKeys.MARL_MATCH_RESULTS_KEY
-        current = red.lpop(key)
-        results = []
-
-        while current is not None:
-            decoded = msgpack.unpackb(current)
-            current = red.lpop(key)
-            if decoded[0] != -1:
-                results.append(decoded)
+        results = self.client.atomic_pop_all(RedisKeys.MARL_MATCH_RESULTS_KEY)
 
         for result in results:
             opponent_num, victory = result
-            if opponent_num >= len(self.player_skills):
+
+            if opponent_num == -1 or opponent_num >= len(self.player_skills):
                 continue
 
             if victory:
@@ -98,13 +75,4 @@ class OpponentSelector(object):
         self.update_opponent()
 
     def submit_result(self, opponent_num, victory):
-        success = False
-        while not success:
-            try:
-                encoded = msgpack.packb((opponent_num, victory))
-                success = True
-            except MemoryError:
-                print("Failed to submit MARL result...")
-                time.sleep(1)
-
-        self.redis.lpush(RedisKeys.MARL_MATCH_RESULTS_KEY, encoded)
+        self.client.push_data(RedisKeys.MARL_MATCH_RESULTS_KEY, (opponent_num, victory))

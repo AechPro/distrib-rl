@@ -1,9 +1,5 @@
-import msgpack
-import msgpack_numpy as m
-m.patch()
 from distrib_rl.Distrib import RedisKeys
-from distrib_rl.Experience import Trajectory, ExperienceReplay
-import time
+from distrib_rl.Experience import ExperienceReplay
 
 class DistribExperienceManager(object):
     def __init__(self, cfg, client=None, server=None):
@@ -11,14 +7,6 @@ class DistribExperienceManager(object):
         self.client = client
         self.server = server
         self.experience = ExperienceReplay(cfg)
-
-    def push_trajectories(self, trajectories):
-        if self.client is None:
-            return
-
-        encoded = msgpack.packb(trajectories)
-
-        self.client.push_data(RedisKeys.CLIENT_EXPERIENCE_KEY, encoded, encoded=True)
 
     def get_timesteps_as_batches(self, num_timesteps, batch_size):
         if self.server is None:
@@ -57,7 +45,8 @@ class DistribExperienceManager(object):
                 n_collected += len(batch[0])
 
             if len(acts) > 0:
-                exp.register_trajectory((acts, probs, rews, obses, done, frews, vals, advs, rets, noise_indices, ep_rews), serialized=True)
+                exp.register_trajectory((acts, probs, rews, obses, done, frews,
+                                        vals, advs, rets, noise_indices, ep_rews), serialized=True)
                 break
 
             if exp.num_timesteps > batch_size:

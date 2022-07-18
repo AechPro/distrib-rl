@@ -9,7 +9,7 @@ torch.manual_seed(0)
 print("SET TORCH TO 1 THREAD IN RUN_CLIENT")
 torch.set_num_threads(1)
 
-from PolicyOptimization.DistribPolicyGradients import Client
+from distrib_rl.PolicyOptimization.DistribPolicyGradients import Client
 
 def main():
     client = Client()

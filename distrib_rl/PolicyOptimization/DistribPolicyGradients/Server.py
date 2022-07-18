@@ -109,7 +109,8 @@ class Server(object):
         # print("Collected {} policy rewards\nStatistics: {}".format(len(rewards), RLMath.compute_array_stats(rewards)))
 
         self.policy_reward = reward
-        self.server.redis.set(RedisKeys.MEAN_POLICY_REWARD_KEY, reward)
+        print(f"setting server policy_reward to {reward}")
+        #self.server.redis.set(RedisKeys.MEAN_POLICY_REWARD_KEY, reward)
 
 
     def update_server(self, current_epoch):
@@ -198,9 +199,11 @@ class Server(object):
         if cfg["log_to_wandb"]:
             exp_name = cfg["experiment_name"]
             experiment, adjustment, trial = exp_name.split("-")
-            self.wandb_run = wandb.init(project=experiment,
-                                        group=adjustment,
-                                        name="trial {}".format(trial),
+
+            wandb_cfg = cfg.get("wandb", {})
+            self.wandb_run = wandb.init(project=wandb_cfg.get("project", experiment),
+                                        group=wandb_cfg.get("group", adjustment),
+                                        name=wandb_cfg.get("name", "trial {}".format(trial)),
                                         config=cfg,
                                         reinit=True)
 

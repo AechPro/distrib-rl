@@ -1,7 +1,7 @@
+from bz2 import compress
 from redis import Redis
-from distrib_rl.Utils import RedisHelpers as helpers
 from distrib_rl.Distrib import RedisKeys, RedisServer
-import msgpack
+from distrib_rl.Distrib.MessageSerialization import MessageSerializer
 import time
 import pyjson5 as json
 import os
@@ -11,8 +11,10 @@ class RedisClient(object):
     def __init__(self):
         self.redis = None
         self.current_epoch = -1
+        self.current_value_epoch = -1
         self.max_queue_size = 0
-
+        self._message_serializer = MessageSerializer()
+    
     def connect(self):
         ip = os.environ.get("REDIS_HOST", default='localhost')
         port = os.environ.get("REDIS_PORT", default=6379)
@@ -20,15 +22,26 @@ class RedisClient(object):
 
         self.redis = Redis(host=ip, port=port, password=password)
 
-    def push_data(self, key, data, encoded=False):
+    def push_data(self, key, data):
         red = self.redis
-        if not encoded:
-            encoded_data = helpers.encode_numpy(data)
-        else:
-            encoded_data = data
+        packed_data = self._message_serializer.pack(data)
 
-        red.lpush(key, encoded_data)
+        red.lpush(key, packed_data)
         red.ltrim(key, 0, self.max_queue_size)
+    
+    def set_data(self, key, data):
+        if data is None:
+            packed = data
+        else:
+            packed = self._message_serializer.pack(data)
+
+        return self.redis.set(key, packed)
+
+    def get_data(self, key):
+        packed = self.redis.get(key)
+        if packed is None:
+            return packed
+        return self._message_serializer.unpack(packed)
 
     def get_reward_stats(self):
         mean = self.redis.get(RedisKeys.RUNNING_REWARD_MEAN_KEY)
@@ -40,6 +53,31 @@ class RedisClient(object):
 
         return float(mean), float(std)
 
+    def atomic_pop_all(self, key):
+        pipe = self.redis.pipeline()
+        pipe.lrange(key, 0, -1)
+        pipe.delete(key)
+        packed_results = pipe.execute()[0]
+        if packed_results is None:
+            return []
+        return [self._message_serializer.unpack(packed_result) for packed_result in packed_results]
+
+    def get_latest_value_params(self):
+        red = self.redis
+        epoch = red.get(RedisKeys.SERVER_CURRENT_UPDATE_KEY)
+        if epoch is not None:
+            epoch = int(epoch)
+
+        if epoch == self.current_value_epoch or epoch is None:
+            return None
+
+        self.current_value_epoch = epoch
+
+        encoded_val = red.get(RedisKeys.SERVER_VAL_PARAMS_KEY)
+        if encoded_val is None:
+            return None
+        return self._message_serializer.unpack(encoded_val)
+
     def get_latest_update(self):
         red = self.redis
         epoch = red.get(RedisKeys.SERVER_CURRENT_UPDATE_KEY)
@@ -47,25 +85,23 @@ class RedisClient(object):
             epoch = int(epoch)
 
         if epoch == self.current_epoch or epoch is None:
-            return None, None, None, None, False
+            return None, None, None, False
 
         self.current_epoch = epoch
 
         pipe = red.pipeline()
         pipe.get(RedisKeys.SERVER_POLICY_PARAMS_KEY)
-        pipe.get(RedisKeys.SERVER_VAL_PARAMS_KEY)
         pipe.get(RedisKeys.SERVER_STRATEGY_FRAMES_KEY)
         pipe.get(RedisKeys.SERVER_STRATEGY_HISTORY_KEY)
         results = pipe.execute()
 
-        encoded_policy, encoded_val, encoded_frames, encoded_history = results
+        packed_policy, packed_frames, packed_history = results
 
-        policy = helpers.decode_numpy(encoded_policy)
-        frames = helpers.decode_numpy(encoded_frames)
-        hist = helpers.decode_numpy(encoded_history)
-        val = helpers.decode_numpy(encoded_val)
+        policy = self._message_serializer.unpack(packed_policy)
+        frames = self._message_serializer.unpack(packed_frames)
+        history = self._message_serializer.unpack(packed_history)
 
-        return policy, val, frames, hist, True
+        return policy, frames, history, True
 
     def get_cfg(self):
         import numpy as np
@@ -94,7 +130,18 @@ class RedisClient(object):
         np.random.seed(cfg["seed"])
         random.seed(cfg["seed"])
 
+        self._configure_serialization(cfg)
+
         return cfg
+
+    def _configure_serialization(self, cfg):
+        networking_cfg = cfg.get("networking", {})
+        compression_type = networking_cfg.get("compression", None)
+        if compression_type:
+            self._message_serializer = MessageSerializer(compression_type=compression_type)
+        else:
+            self._message_serializer = MessageSerializer()
+
 
     def check_server_status(self):
         status = self.redis.get(RedisKeys.SERVER_CURRENT_STATUS_KEY)
@@ -104,7 +151,7 @@ class RedisClient(object):
         return status.decode("utf-8")
 
     def transmit_env_spaces(self, input_shape, output_shape):
-        encoded = msgpack.packb((input_shape, output_shape))
+        encoded = self._message_serializer.pack((input_shape, output_shape))
         self.redis.set(RedisKeys.ENV_SPACES_KEY, encoded)
 
 

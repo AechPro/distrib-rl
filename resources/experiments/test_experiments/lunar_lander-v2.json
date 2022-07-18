@@ -1,0 +1,23 @@
+{
+  "experiment_name" : "LunarLander",
+  "config_file" : "lunar_lander-v2.json",
+  "num_trials_per_adjustment" : 2,
+  "steps_per_save" : 20,
+
+  "config_adjustments" :
+  {
+    "adjustment_1":
+      {
+        "key_set": ["policy_optimizer", "gamma"],
+        "range": {"begin": 0.99, "end": 0.995, "increment": 0.1},
+        "full_reset_per_increment": false
+      }
+  },
+
+  "terminal_conditions":
+  {
+    "max_epoch" : -100,
+    "max_timesteps" : 1e6,
+    "policy_reward" : -1
+  }
+}

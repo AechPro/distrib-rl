@@ -61,8 +61,8 @@ class PolicyGradients(object):
 
     @torch.no_grad()
     def collect(self):
-        trajectories = self.agent.gather_timesteps(self.policy, self.env,
-                                                   num_timesteps=self.cfg["policy_optimizer"]["timesteps_per_update"])
+        trajectories = list(self.agent.gather_timesteps(self.policy, self.env,
+                                                   num_timesteps=self.cfg["policy_optimizer"]["timesteps_per_update"]))
         value_estimator = self.value_net
 
         rewards = []

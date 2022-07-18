@@ -14,11 +14,11 @@ def _build_optimizer(cfg_section, policy, device):
     del kwargs["type"]
 
     if t == "dsgd":
-        from GradientOptimization.Optimizers import DynamicSGD
+        from distrib_rl.GradientOptimization.Optimizers import DynamicSGD
         return DynamicSGD(policy, **kwargs)
 
     elif t == "adam":
-        from GradientOptimization.Optimizers import Adam
+        from distrib_rl.GradientOptimization.Optimizers import Adam
         return Adam(policy, **kwargs)
 
     elif "torch" in t:
@@ -26,7 +26,7 @@ def _build_optimizer(cfg_section, policy, device):
             kwargs["lr"] = kwargs["step_size"]
             del kwargs["step_size"]
 
-        from GradientOptimization.Optimizers import TorchWrapper
+        from distrib_rl.GradientOptimization.Optimizers import TorchWrapper
         t = t.split(" ")[1]
         if t == "adam":
             from torch.optim import Adam

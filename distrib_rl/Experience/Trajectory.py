@@ -29,8 +29,8 @@ class Trajectory(object):
         self.dones.append(done)
 
     def serialize(self):
-        return tuple((self.actions, self.log_probs, self.rewards, self.obs, self.dones,
-                      self.future_rewards, self.values, self.advantages, self.pred_rets, self.ep_rew, self.noise_idx))
+        return (self.actions, self.log_probs, self.rewards, self.obs, self.dones,
+                      self.future_rewards, self.values, self.advantages, self.pred_rets, self.ep_rew, self.noise_idx)
 
     def deserialize(self, other):
         self.actions, self.log_probs, self.rewards, self.obs, self.dones, \

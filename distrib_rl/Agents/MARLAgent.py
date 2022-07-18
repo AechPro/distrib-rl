@@ -70,6 +70,7 @@ class MARLAgent(object):
                 for i in range(agents_to_save):
                     trajectories[i].final_obs = next_obs[i]
                     experience_trajectories.append(trajectories[i])
+                    yield trajectories[i]
 
                 # todo: Implement a proper opponent evaluation & selection scheme and delete this.
                 result = sum(trajectories[0].rewards) > sum(trajectories[-1].rewards)
@@ -90,8 +91,7 @@ class MARLAgent(object):
         for i in range(agents_to_save):
             trajectories[i].final_obs = next_obs[i]
             experience_trajectories.append(trajectories[i])
-
-        return experience_trajectories
+            yield trajectories[i]
 
     def get_next_opponent(self, policy):
         opponent_weights, opponent_num = self.opponent_selector.get_opponent()

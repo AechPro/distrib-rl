@@ -2,8 +2,8 @@
   "device": "cuda:0",
   "seed": 123,
   "log_to_wandb": true,
-  "env_id": "Rocket League",
-  "agent": {"type" : "marl"},
+  "env_id": "LunarLander-v2",
+  "agent": {"type" : "pg"},
 
   "value_estimator":
   {
@@ -60,7 +60,7 @@
     "type" : ["ff", "discrete"],
     "init_type": "normc",
     "init_std": 1.0,
-    "action_init_std": 1.0,
+    "action_init_std": 0.01,
     "action_noise_std": 0.0,
     "observation_clip_range": null,
     "normalize_observations": false,
@@ -69,29 +69,23 @@
     {
       "ff1":
       {
-        "type" : "ff",
-        "num_nodes" : 128,
-        "activation_function" : "relu",
-        "extra" : null
+        "type": "ff",
+        "extra": null,
+        "num_nodes": 64,
+        "activation_function": "tanh"
       },
       "ff2":
       {
-        "type" : "ff",
-        "num_nodes" : 128,
-        "activation_function" : "relu",
-        "extra" : null
+        "type": "ff",
+        "extra": null,
+        "num_nodes": 64,
+        "activation_function": "tanh"
       },
-      "ff3":
-      {
-        "type" : "ff",
-        "num_nodes" : 128,
-        "activation_function" : "relu",
-        "extra" : null
-      },
+
       "output":
       {
           "type": "out",
-          "extra": [3,3,3,3,3,2,2,2],
+          "extra": [2,2,2,2],
           "num_nodes": 21,
           "activation_function": "softmax"
       }
@@ -101,7 +95,7 @@
   "policy_gradient_optimizer":
   {
     "type": "dsgd",
-    "step_size": 0.1
+    "step_size":  0.0015
   },
 
   "novelty_gradient_optimizer":
@@ -113,29 +107,24 @@
   "value_gradient_optimizer":
   {
     "type": "torch rmsprop",
-    "lr": 3e-4
+    "lr": 1e-4
   },
 
   "policy_optimizer":
   {
     "type": "pg",
-    "gamma": 0.97,
+    "gamma": 0.99,
     "max_kl": 1.0,
     "n_epochs": 10,
-    "batch_size": 5000,
+    "batch_size": 500,
     "clip_range": 0.2,
     "gae_lambda": 0.95,
-    "entropy_coef": 0.005,
+    "entropy_coef": 0.0,
     "eps_per_eval": 5,
-    "max_timesteps": 1e16,
+    "max_timesteps": 1e6,
     "timesteps_per_update": 5000,
     "new_returns_proportion": 0.1,
     "value_updates_per_batch": 10
-  },
-
-  "experience_replay":
-  {
-    "max_buffer_size": 250000
   },
 
   "adaptive_omega":
@@ -147,6 +136,11 @@
     "default": 0.0
   },
 
+  "experience_replay":
+  {
+    "max_buffer_size": 10000
+  },
+
   "strategy":
   {
     "max_history_size": 200,
@@ -156,24 +150,11 @@
     "fd_noise_std" : 0.1
   },
 
-  "rlgym":
-  {
-    "tick_skip": 8,
-    "team_size": 1,
-    "game_speed": 100,
-    "spawn_opponents": true,
-    "env_id": 2
-  },
-
   "lr_adjuster":
   {
-    "clip_target": 0.1,
+    "clip_target": 0.2,
     "rate": 1.1,
     "max_lr": 1,
     "min_lr": 1e-7
-  },
-
-  "networking": {
-    "compression": "lz4"
   }
 }
