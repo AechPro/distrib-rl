@@ -1,11 +1,9 @@
-from functools import partial
 from distrib_rl.MPFramework import MPFProcessHandler
 from distrib_rl.PolicyOptimization.DistribPolicyGradients import Configurator
 from distrib_rl.Distrib import RedisClient, RedisServer
 from distrib_rl.PolicyOptimization.DistribPolicyGradients.ClientTrajectoryFinalizer import ClientTrajectoryFinalizer
 import torch
 import time
-import numpy as np
 
 class Client(object):
     def __init__(self):
@@ -34,13 +32,8 @@ class Client(object):
         n_sec = 1
         agent = self.agent
 
-        trajectory_callback = lambda t: \
-            self.trajectory_finalizer_handler.put(header=ClientTrajectoryFinalizer.HEADER_TRAJECTORY, data=t)
-
-        agent.gather_timesteps(self.policy,
-                               self.env,
-                               num_seconds=n_sec,
-                               trajectory_callback=trajectory_callback)
+        for trajectory in agent.gather_timesteps(self.policy, self.env, num_seconds=n_sec):
+            self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_TRAJECTORY, data=trajectory)
 
         self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_FLUSH,
                                               data=agent.ep_rewards if len(agent.ep_rewards) > 0 else None)
@@ -121,7 +114,7 @@ class Client(object):
         tfh_cfg["env_space_shapes"] = (self.policy.input_shape, self.policy.output_shape)
         self.trajectory_finalizer_handler = MPFProcessHandler()
         self.trajectory_finalizer_handler.setup_process(ClientTrajectoryFinalizer())
-        self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_INITIALIZATION, tfh_cfg)
+        self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_RESET, tfh_cfg)
 
         print("Client configuration complete!")
 

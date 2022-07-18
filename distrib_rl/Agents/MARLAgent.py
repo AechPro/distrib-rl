@@ -20,7 +20,7 @@ class MARLAgent(object):
 
 
     @torch.no_grad()
-    def gather_timesteps(self, policy, env, num_timesteps=None, num_seconds=None, num_eps=None, trajectory_callback=None):
+    def gather_timesteps(self, policy, env, num_timesteps=None, num_seconds=None, num_eps=None):
         n_agents = self.n_agents
         agents_to_save = n_agents if self.save_both_teams else n_agents // 2
 
@@ -70,8 +70,7 @@ class MARLAgent(object):
                 for i in range(agents_to_save):
                     trajectories[i].final_obs = next_obs[i]
                     experience_trajectories.append(trajectories[i])
-                    if trajectory_callback:
-                        trajectory_callback(trajectories[i])
+                    yield trajectories[i]
 
                 # todo: Implement a proper opponent evaluation & selection scheme and delete this.
                 result = sum(trajectories[0].rewards) > sum(trajectories[-1].rewards)
@@ -92,10 +91,7 @@ class MARLAgent(object):
         for i in range(agents_to_save):
             trajectories[i].final_obs = next_obs[i]
             experience_trajectories.append(trajectories[i])
-            if trajectory_callback:
-                trajectory_callback(trajectories[i])
-
-        return experience_trajectories
+            yield trajectories[i]
 
     def get_next_opponent(self, policy):
         opponent_weights, opponent_num = self.opponent_selector.get_opponent()

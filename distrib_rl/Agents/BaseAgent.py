@@ -11,8 +11,8 @@ class BaseAgent(object):
         self.current_ep_rew = 0
 
     @torch.no_grad()
-    def gather_timesteps(self, policy, env, num_timesteps=None, num_seconds=None, num_eps=None, trajectory_callback=None):
-        trajectories = []
+    def gather_timesteps(self, policy, env, num_timesteps=None, num_seconds=None, num_eps=None):
+        trajectoryCount = 0
         trajectory = Trajectory()
         if self.leftover_obs is None:
             obs = env.reset()
@@ -40,10 +40,9 @@ class BaseAgent(object):
                 self.current_ep_rew = 0
 
                 trajectory.final_obs = next_obs
-                trajectories.append(trajectory)
+                trajectoryCount += 1
 
-                if trajectory_callback:
-                    trajectory_callback(trajectory)
+                yield trajectory
                 trajectory = Trajectory()
 
                 next_obs = env.reset()
@@ -51,7 +50,7 @@ class BaseAgent(object):
             obs = next_obs
             if num_timesteps is not None and cumulative_timesteps >= num_timesteps or \
                num_seconds is not None and time.time() - start_time >= num_seconds or \
-               num_eps is not None and len(trajectories) >= num_eps:
+               num_eps is not None and trajectoryCount >= num_eps:
                 break
             # print((time.perf_counter()-start_time)/cumulative_timesteps," | ",act_time/cumulative_timesteps," | ",step_time/cumulative_timesteps)
             # env.render()
@@ -59,11 +58,7 @@ class BaseAgent(object):
 
         if len(trajectory.obs) > 0:
             trajectory.final_obs = next_obs
-            trajectories.append(trajectory)
-            if trajectory_callback:
-                trajectory_callback(trajectory)
-
-        return trajectories
+            yield trajectory
 
     @torch.no_grad()
     def evaluate_policy(self, policy, env, num_timesteps=0, num_eps=1, render=False):

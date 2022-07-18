@@ -9,19 +9,30 @@ from distrib_rl.Policies import PolicyFactory
 
 
 class ClientTrajectoryFinalizer(MPFProcess):
-    HEADER_INITIALIZATION="initialization"
+    HEADER_RESET="reset"
     HEADER_FLUSH = "flush_data"
     HEADER_TRAJECTORY = "trajectory"
 
     def __init__(self, loop_wait_period=0.1):
         super().__init__("ClientTrajectoryFinalizer", loop_wait_period=0.1, process_all_updates=True)
+        self.client = None
+        self.cfg = None
+        self.gamma = None
+        self.lmbda = None
+        self.value_estimator = None
+        self.reward_stats = None
+
+        self.trajectories_to_send = None
+        self.total_timesteps = None
+        self.t0 = None
+    
+    def init(self):
         self.handlers = {
-            ClientTrajectoryFinalizer.HEADER_INITIALIZATION: self._init,
+            ClientTrajectoryFinalizer.HEADER_RESET: self._reset,
             ClientTrajectoryFinalizer.HEADER_FLUSH: self._flush,
             ClientTrajectoryFinalizer.HEADER_TRAJECTORY: self._trajectory
         }
-    
-    def init(self):
+
         self.client = None
         self.cfg = None
         self.gamma = None
@@ -32,16 +43,8 @@ class ClientTrajectoryFinalizer(MPFProcess):
         self.trajectories_to_send = []
         self.total_timesteps = 0
         self.t0 = None
-        
-    def update(self, header, data):
-        handler = self.handlers.get(header, None)
-        if not handler:
-            print(f"WARNING: ClientTrajectoryFinalizer received unknown message header '{header}'")
-            return
 
-        handler(data)
-
-    def _init(self, cfg):
+    def _reset(self, cfg):
         self.cfg = cfg
         self.gamma = self.cfg["policy_optimizer"]["gamma"]
         self.lmbda = self.cfg["policy_optimizer"]["gae_lambda"]
@@ -74,6 +77,15 @@ class ClientTrajectoryFinalizer(MPFProcess):
 
         self.trajectories_to_send = []
         self.total_timesteps = 0
+        
+    def update(self, header, data):
+        handler = self.handlers.get(header, None)
+        if not handler:
+            print(f"WARNING: ClientTrajectoryFinalizer received unknown message header '{header}'")
+            return
+
+        handler(data)
+
     
     def _flush(self, rewards):
         if self._server_is_running():
