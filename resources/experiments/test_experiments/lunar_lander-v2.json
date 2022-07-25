@@ -8,8 +8,8 @@
   {
     "adjustment_1":
       {
-        "key_set": ["policy_optimizer", "gamma"],
-        "range": {"begin": 0.99, "end": 0.995, "increment": 0.1},
+        "key_set": ["policy_optimizer", "batch_size"],
+        "range": {"begin": 5000, "end": 100000, "increment": 5000},
         "full_reset_per_increment": false
       }
   },

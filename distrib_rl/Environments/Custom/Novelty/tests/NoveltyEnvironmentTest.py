@@ -8,6 +8,7 @@ def run_test():
         done = False
         while not done:
             action = i
-            obs, rew, done, _ = env.step(action)
+            obs, rew, terminated, truncated, _ = env.step(action)
+            done = terminated or truncated
 
         env.save("data/playbacks/test/1_{}.txt".format(i))
