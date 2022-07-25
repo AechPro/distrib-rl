@@ -59,15 +59,21 @@ class Environment(gym.Env):
         self.obs_idx += 26
         done = done or self.obs_idx >= len(self.obs)
 
-        return self.obs.copy(), rew, done, {}
+        return self.obs.copy(), rew, done, False, {}
 
-    def reset(self):
+    def reset(self, *, seed=None, return_info=False, options=None):
+        # handle updating the PRNG as needed
+        super(gym.Env, self).reset(seed=seed)
+
         self.game.reset()
         self.current_guess = ""
         self.obs = np.zeros(5 * 6 * 26)
         self.obs_idx = 0
         self.in_word_guesses = []
         self.at_position_guesses = []
+
+        if return_info:
+            return self.obs, {}
 
         return self.obs
 

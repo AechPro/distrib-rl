@@ -8,7 +8,6 @@ import os
 class Environment(gym.Env):
     def __init__(self, opt_id="backprop_{}".format(os.getpid())):
         self.opt_id = opt_id
-        self.rng = np.random.RandomState(0)
         self.action_space = gym.spaces.Discrete(9)
 
         self.map = TileMap()
@@ -45,14 +44,20 @@ class Environment(gym.Env):
         self.current_step += 1
         self.action_record.append(action)
 
-        return self.form_obs(), reward, done, {}
+        return self.form_obs(), reward, done, False, {}
 
-    def reset(self):
+    def reset(self, *, seed=None, return_info=False, options=None):
+        # handle updating the PRNG as needed
+        super(gym.Env, self).reset(seed=seed)
+
         if self.opt_id is not None and len(self.action_record) > 0:
             self.save(self.opt_id)
         self.current_node = self.map.get_node(self.map.width*self.map.node_radius//2, self.map.height*self.map.node_radius//2)
         self.current_step = 0
         self.action_record = []
+
+        if return_info:
+            return self.form_obs(), {}
 
         return self.form_obs()
 
@@ -79,6 +84,3 @@ class Environment(gym.Env):
 
     def render(self, mode='human'):
         pass
-
-    def seed(self, seed):
-        self.rng = np.random.RandomState(seed)

@@ -39,7 +39,7 @@ _builders = {
     "if_touched_last": RewardIfTouchedLast,
     "velocity_ball_to_goal": VelocityBallToGoalReward,
     "velocity_player_to_ball": VelocityPlayerToBallReward,
-    "anneal_rewards": lambda **kwargs: AnnealRewards(*sum(zip([build_reward_fn_from_config(r) for r in kwargs["reward_functions"]], kwargs["weights"]), ())),
+    "anneal_rewards": lambda **kwargs: AnnealRewards(*sum(zip([build_reward_function_from_config(r) for r in kwargs["reward_functions"]], kwargs["weights"]), ())),
     "diff": DiffReward,
     "distribute": DistributeRewards,
     "jump_touch": JumpTouchReward,
@@ -51,32 +51,32 @@ _builders = {
 
 _arg_transformers = {
     "combined": lambda **kwargs: {
-        "reward_functions": build_reward_fn_from_config(kwargs["rewards"]),
+        "reward_functions": build_reward_function_from_config(kwargs["rewards"]),
         "reward_weights": tuple(kwargs["weights"])
     },
     "diff": lambda **kwargs: {
-        "reward_function": build_reward_fn_from_config(kwargs["reward"]),
+        "reward_function": build_reward_function_from_config(kwargs["reward"]),
         "negative_slope": kwargs.get("negative_slope", 0.1)
     },
     "distribute": lambda **kwargs: {
-        "reward_function": build_reward_fn_from_config(kwargs["reward"]),
+        "reward_function": build_reward_function_from_config(kwargs["reward"]),
         "team_spirit": kwargs.get("team_spirit", 0.3)
     },
     "multi_model": lambda **kwargs: {
-        "reward_funcs": build_reward_fn_from_config(kwargs["rewards"]),
+        "reward_funcs": build_reward_function_from_config(kwargs["rewards"]),
         "model_map": kwargs["model_map"],
     },
     "multiply": lambda **kwargs: {
-        "reward_functions": [build_reward_fn_from_config(f) for f in kwargs["rewards"]]
+        "reward_functions": [build_reward_function_from_config(f) for f in kwargs["rewards"]]
     },
     "sequential": lambda **kwargs: {
-        "rewards": [build_reward_fn_from_config(f) for f in kwargs["rewards"]],
+        "rewards": [build_reward_function_from_config(f) for f in kwargs["rewards"]],
         "steps": kwargs["steps"]
     },
 }
 
 
-register_reward_function, build_reward_fn_from_config = build_component_factory(
+register_reward_function, build_reward_function_from_config = build_component_factory(
     "reward function",
     builders=_builders,
     arg_transformers=_arg_transformers,
