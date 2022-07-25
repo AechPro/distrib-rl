@@ -1,10 +1,10 @@
-from distrib_rl.Environments.Custom.RocketLeague import RLGymFactory
+from distrib_rl.Environments.Custom.RocketLeague import RLGymEnvironment
 import numpy as np
 
 
 if __name__ == "__main__":
 
-    cfg = {"rlgym":{
+    cfg = {"env_kwargs":{
             "tick_skip": 8,
             "team_size": 2,
             "game_speed": 1,
@@ -12,7 +12,7 @@ if __name__ == "__main__":
             "env_id":2
           }}
 
-    env = RLGymFactory.build_rlgym_from_config(cfg)
+    env = RLGymEnvironment(**cfg)
 
 
     try:
@@ -23,12 +23,14 @@ if __name__ == "__main__":
             gamestate = info["state"]
             ball_heights.append(gamestate.ball.position[2])
             done = False
-            ep_rew = np.zeros(cfg["rlgym"]["team_size"]*2)
+            ep_rew = np.zeros(cfg["env_kwargs"]["team_size"]*2)
             n_steps = 0
 
             while not done:
-                actions = [env.action_space.sample() for _ in range(cfg["rlgym"]["team_size"]*2)]
-                obs, rew, done, gamestate = env.step(np.asarray(actions))
+                actions = [env.action_space.sample() for _ in range(cfg["env_kwargs"]["team_size"]*2)]
+                obs, rew, terminated, truncated, _ = env.step(np.asarray(actions))
+
+                done = terminated or truncated
                 ep_rew += rew
                 n_steps += 1
 

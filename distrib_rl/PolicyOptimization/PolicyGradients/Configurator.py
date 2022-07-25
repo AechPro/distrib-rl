@@ -1,3 +1,5 @@
+import importlib
+import inspect
 from distrib_rl.Policies import PolicyFactory
 from distrib_rl.GradientOptimization import GradientOptimizerFactory, GradientBuilder
 from distrib_rl.Agents import AgentFactory
@@ -6,21 +8,20 @@ from distrib_rl.Strategy import StrategyOptimizer
 from distrib_rl.Utils import AdaptiveOmega
 from distrib_rl.PolicyOptimization.Learners import PPO, REINFORCE
 import gym
-import torch.optim
-from distrib_rl.Environments.Custom import MinAtarWrapper
 import numpy as np
 
 
 def build_vars(cfg):
     cfg["rng"] = np.random.RandomState(cfg["seed"])
-    #env = MinAtarWrapper(cfg_json["env_id"])
 
-    env_name = cfg["env_id"].lower()
-    if "rocket" in env_name:
-        from distrib_rl.Environments.Custom.RocketLeague import RLGymFactory
-        env = RLGymFactory.build_rlgym_from_config(cfg)
-    else:
-        env = gym.make(cfg["env_id"])
+    _register_custom_envs(cfg)
+
+    env = gym.make(cfg["env_id"])
+
+    seed = cfg.get("seed", None)
+    options = cfg.get("env_kwargs", None)
+
+    env.reset(seed = seed, options = options)
 
     env.seed(cfg["seed"])
     env.action_space.seed(cfg["seed"])
@@ -54,3 +55,18 @@ def build_vars(cfg):
 
     return env, experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, agent, policy, \
            strategy_optimizer, omega, value_net, novelty_gradient_optimizer, learner
+
+def _register_custom_envs(cfg):
+    custom_envs = cfg.get("custom_envs", [])
+    for custom_env in custom_envs:
+        importlib.import_module(custom_env)
+
+def _load_env(name):
+    if ":" in name:
+        mod_name, attr_name = name.split(":")
+    mod = importlib.import_module(mod_name)
+    fn = getattr(mod, attr_name)
+    return fn
+
+def _is_configurable(func):
+    return "config" in inspect.signature(func).parameters

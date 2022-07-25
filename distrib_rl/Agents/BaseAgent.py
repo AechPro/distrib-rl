@@ -26,7 +26,9 @@ class BaseAgent(object):
 
             # ts.action and ts.log_prob will be filled here
             action = self._get_policy_action(policy, obs, ts)
-            next_obs, rew, done, _ = env.step(action)
+            next_obs, rew, terminated, truncated, _ = env.step(action)
+
+            done = terminated or truncated
 
             self.current_ep_rew += rew
             ts.reward = rew
@@ -70,7 +72,9 @@ class BaseAgent(object):
 
         while i < num_timesteps or len(rewards) < num_eps:
             action = self._get_policy_action(policy, obs, ts, evaluate=False)
-            next_obs, rew, done, _ = env.step(action)
+            next_obs, rew, terminated, truncated, _ = env.step(action)
+
+            done = terminated or truncated
             reward += rew
 
             if done:

@@ -112,17 +112,15 @@
 
   "policy_optimizer":
   {
-    "type": "pg",
     "gamma": 0.99,
     "max_kl": 1.0,
     "n_epochs": 10,
     "batch_size": 500,
     "clip_range": 0.2,
     "gae_lambda": 0.95,
-    "entropy_coef": 0.0,
+    "entropy_coef": 0.005,
     "eps_per_eval": 5,
     "max_timesteps": 1e6,
-    "timesteps_per_update": 5000,
     "new_returns_proportion": 0.1,
     "value_updates_per_batch": 10
   },
@@ -138,7 +136,7 @@
 
   "experience_replay":
   {
-    "max_buffer_size": 10000
+    "max_buffer_size": 100000
   },
 
   "strategy":

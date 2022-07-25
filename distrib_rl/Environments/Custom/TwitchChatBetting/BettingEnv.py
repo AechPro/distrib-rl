@@ -17,11 +17,16 @@ class BettingEnv(Env):
         self.action_space = Box(0, 1, (2,))
         self.observation_space = Box(-np.inf, np.inf, (3,))
 
-    def reset(self):
+    def reset(self, *, seed=None, return_info=False, options=None):
+        # handle updating the PRNG as needed
+        super(Env, self).reset(seed=seed)
+
         self.n_bets = 0
         self.money = self.default_money
         self._create_probs()
 
+        if return_info:
+            return self._build_obs(), {}
         return self._build_obs()
 
     def step(self, action):
@@ -45,7 +50,7 @@ class BettingEnv(Env):
         if self.money < 0.1*self.default_money:
             rew = -10
             done = True
-        return obs, rew, done, {}
+        return obs, rew, done, False, {}
 
     def render(self, mode="human"):
         pass

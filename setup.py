@@ -20,8 +20,7 @@ setup(
     url='https://github.com/AechPro/distrib-rl',
     install_requires=[
         'absl-py==0.7.1',
-        'gym==0.21.0',
-        'gym3==0.3.3',
+        'gym==0.25.0',
         'rlgym==1.2.0',
         'pyjson5==1.6.1',
         'lz4==4.0.0',
