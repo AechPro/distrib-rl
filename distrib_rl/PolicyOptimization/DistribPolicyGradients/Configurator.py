@@ -1,3 +1,6 @@
+import importlib
+import inspect
+
 from distrib_rl.Policies import PolicyFactory
 from distrib_rl.GradientOptimization import GradientOptimizerFactory, GradientBuilder
 from distrib_rl.Agents import AgentFactory
@@ -16,13 +19,18 @@ np.random.seed(0)
 torch.manual_seed(0)
 
 def build_env(cfg, existing_env=None):
-    env_name = cfg["env_id"].lower()
+
+    _register_custom_envs(cfg)
+
     if existing_env is None:
-        env = gym.make(cfg["env_id"])
+        env = gym.make(cfg["env_id"], new_step_api = True, **cfg.get("env_kwargs", {}))
     else:
         env = existing_env
 
-    env.seed(cfg["seed"])
+    seed = cfg.get("seed", None)
+    options = cfg.get("env_kwargs", None)
+
+    env.reset(seed = seed, options = options)
     env.action_space.seed(cfg["seed"])
     return env
 
@@ -79,3 +87,18 @@ def build_vars(cfg, existing_env=None, env_space_shapes=None):
 
     return env, experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, agent, policy, \
            strategy_optimizer, omega, value_net, novelty_gradient_optimizer, learner
+
+def _register_custom_envs(cfg):
+    custom_envs = cfg.get("custom_envs", [])
+    for custom_env in custom_envs:
+        importlib.import_module(custom_env)
+
+def _load_env(name):
+    mod_name, attr_name = name.split(":")
+    mod = importlib.import_module(mod_name)
+    fn = getattr(mod, attr_name)
+    return fn
+
+def _is_configurable(func):
+    return "config" in inspect.signature(func).parameters
+

@@ -55,7 +55,10 @@ class NoveltyMazeEnv(gym.Env):
         self.sim_process = subprocess.Popen([full_command, '-pipe', self.local_pipe_name])
         self.comm_handler.open_pipe(self.local_pipe_name)
 
-    def reset(self):
+    def reset(self, *, seed=None, return_info=False, options=None):
+        # handle updating the PRNG as needed
+        super(gym.Env, self).reset(seed=seed)
+
         exception = self.comm_handler.send_message(header=Message.NOVELTY_MAZE_RESET_GAME_STATE_MESSAGE_HEADER,
                                                    body=Message.NOVELTY_MAZE_NULL_MESSAGE_BODY)
         if exception is not None:
@@ -72,6 +75,8 @@ class NoveltyMazeEnv(gym.Env):
         self.steps = 0
         self.position_history = []
 
+        if return_info:
+            return state.obs, {}
         return state.obs
 
     def step(self, action):
@@ -107,7 +112,7 @@ class NoveltyMazeEnv(gym.Env):
 
         self.steps+=1
 
-        return obs, reward, done, state
+        return obs, reward, done, False, state
 
     def receive_state(self):
         message, exception = self.comm_handler.receive_message(Message.NOVELTY_MAZE_STATE_MESSAGE_HEADER)
