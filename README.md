@@ -23,8 +23,11 @@ how the  operating system schedules the worker process, and many other unpredict
 not result in an identical set of runs, but they will be as close to identical as possible.
 
 ### Multi-Agent Reinforcement Learning
-Distrib-RL is designed with Multi-Agent Reinforcement Learning (MARL) in mind. The Rocket League Gym (RLGym) is natively supported, so users can train Rocket League agents
-with Reinforcement Learning while making use of multiple asynchronous machines.
+Distrib-RL is designed with Multi-Agent Reinforcement Learning (MARL) in mind.
+The Rocket League Gym (RLGym) is supported via
+[nexus-rl/rlgym-distrib-rl-wrapper](https://github.com/nexus-rl/rlgym-distrib-rl-wrapper),
+so users can train Rocket League agents with Reinforcement Learning while making
+use of multiple asynchronous machines.
 
 # Installation
 Distrib-RL is still in the early stages of development and will undergo many breaking changes before it is released as a PIP package. Right now the only way to install

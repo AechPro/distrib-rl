@@ -6,7 +6,7 @@ EOF_ERROR = 0
 BROKEN_PIPE_ERROR = 1
 
 def _eof_error():
-    print("Novelty maze Local Pipe has crashed! Please close Rocket League and re-launch Novelty maze.")
+    print("Novelty maze Local Pipe has crashed! Please close and re-launch Novelty maze.")
     return EOF_ERROR
 
 

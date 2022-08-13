@@ -4,23 +4,16 @@ from distrib_rl.Agents import AgentFactory
 from distrib_rl.Experience import ExperienceReplay
 from distrib_rl.Strategy import StrategyOptimizer
 from distrib_rl.Utils import AdaptiveOmega
-from distrib_rl.PolicyOptimization.Learners import PPO, REINFORCE
+from distrib_rl.PolicyOptimization.Learners import PPO
 import gym
-import torch.optim
-from distrib_rl.Environments.Custom import MinAtarWrapper
 import numpy as np
 
 
 def build_vars(cfg):
     cfg["rng"] = np.random.RandomState(cfg["seed"])
-    #env = MinAtarWrapper(cfg_json["env_id"])
 
     env_name = cfg["env_id"].lower()
-    if "rocket" in env_name:
-        from distrib_rl.Environments.Custom.RocketLeague import RLGymFactory
-        env = RLGymFactory.build_rlgym_from_config(cfg)
-    else:
-        env = gym.make(cfg["env_id"])
+    env = gym.make(cfg["env_id"])
 
     env.seed(cfg["seed"])
     env.action_space.seed(cfg["seed"])

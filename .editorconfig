@@ -1,0 +1,43 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# VSCode editorconfig plugin: https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig
+# Vim editorconfig: https://github.com/editorconfig/editorconfig-vim
+# NeoVim editorconfig: https://github.com/gpanders/editorconfig.nvim
+# emacs editorconfig: https://github.com/editorconfig/editorconfig-emacs
+# Sublime editorconfig: https://packagecontrol.io/packages/EditorConfig
+# PyCharm editorconfig: built in, for docs see https://www.jetbrains.com/help/pycharm/configuring-code-style.html#editorconfig
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+indent_style = space
+indent_size = 4
+max_line_length = 79 # per PEP-8, also a sane default for most other file types
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+charset = utf-8
+
+# turns out we don't need a python-specific section here, as it's already
+# handled by the top-level section
+
+[*.{js,json,y{a,}ml,htm,html}]
+indent_style = space
+indent_size = 2
+
+[*.{md,Rmd,rst}]
+# trailing whitespace is important in markdown formats
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+[*.{bat,cmd,ps1}]
+indent_style = space
+indent_size = 2
+
+[*.min.*]
+# minified files, if we ever have them here, are just gonna break all the rules
+indent_style = ignore
+max_line_length = ignore

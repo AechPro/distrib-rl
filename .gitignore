@@ -131,3 +131,8 @@ dmypy.json
 # data & logging output
 data/
 wandb/
+
+# ignore ide directories
+.vs/
+.vscode/
+.idea/
