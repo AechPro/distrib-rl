@@ -120,7 +120,6 @@ class MPFProcessHandler(object):
         `
         :param block: mp.Queue block argument.
         :param timeout: mp.Queue timeout argument.
-        :param failure_sleep_time: time between sleep cycles when a failure occurs. Leave alone unless necessary.
         :param cleaning_up: boolean to indicate that cleanup is happening. Do not modify.
         :return: List of items obtained from our process.
         """
@@ -132,15 +131,11 @@ class MPFProcessHandler(object):
         if self._output_queue.empty():
             return None
 
-        failCount = 0
-
         results = []
         try:
-            # Here we take items off the queue for as long as the qsize function says we can.
-            while self._output_queue.qsize() > 0:
+            while not self._output_queue.empty():
                 try:
                     result = self._output_queue.get(block=block, timeout=timeout)
-                    # print("GOT RESULT",self._output_queue.qsize(), self._output_queue.empty())
 
                     header, data = result()
                     results.append((header, data))
@@ -149,31 +144,7 @@ class MPFProcessHandler(object):
                     del result
                     failCount = 0
                 except Empty:
-                    failCount += 1
-                    if failure_sleep_time is not None and failure_sleep_time > 0:
-                        time.sleep(failure_sleep_time)
-
-                    # It appears to be the case that the empty flag in the queue object
-                    # is not related to the qsize() function, so an empty queue exception can
-                    # be thrown even when the queue is not actually empty.
-
-                    # This code can infinitely loop for some reason. qsize() can return a valid integer,
-                    # while empty() can return true for an unlimited period of time, causing get to fail indefinitely.
-                    # Whatever data remains in the queue simply cannot be
-                    # retrieved at this point, and it is left in memory until the Python interpreter is closed.
-                    if failCount >= 10:
-                        if self._output_queue.qsize() == 0 and self._output_queue.empty():
-                            break
-
-                        self._MPFLog.critical("GET_ALL FAILURE LIMIT REACHED ERROR!\n"
-                                              "FAILURE COUNT: {}\n"
-                                              "REMAINING QSIZE: {}\n"
-                                              "QUEUE EMPTY STATUS: {}".format(failCount,
-                                                                              self._output_queue.qsize(),
-                                                                              self._output_queue.empty()))
-                        break
-                    else:
-                        continue
+                    return None
         except Exception:
             error = traceback.format_exc()
             self._MPFLog.critical("GET_ALL ERROR!\n{}".format(error))

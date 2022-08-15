@@ -115,7 +115,7 @@ class MPFTaskChecker(object):
             try:
                 fail_count = 0
                 # This is a copy and paste of get_all() from MPFProcessHandler.
-                while self._input_queue.qsize() > 0:
+                while not self._input_queue.empty():
                     try:
                         result = self._input_queue.get(block=True, timeout=0.1)
 

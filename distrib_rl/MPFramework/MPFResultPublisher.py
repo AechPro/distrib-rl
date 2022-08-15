@@ -39,4 +39,4 @@ class MPFResultPublisher(object):
         del data
 
     def is_empty(self):
-        return self._output_queue.qsize() == 0
+        return self._output_queue.empty()
