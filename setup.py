@@ -18,7 +18,7 @@ setup(
     author='Matthew Allen',
     url='https://github.com/AechPro/distrib-rl',
     install_requires=[
-        'gym==0.21.0',
+        'gym==0.25.0',
         'pyjson5==1.6.1',
         'lz4==4.0.0',
         'matplotlib>=3.1, <4',

@@ -16,7 +16,9 @@ class MARLAgent(object):
         self.ep_rewards = []
         self.current_ep_rew = 0
         self.policies = None
-        self.n_agents = cfg["rlgym"]["team_size"] * 2 if cfg["rlgym"]["spawn_opponents"] else cfg["rlgym"]["team_size"]
+
+        # TODO: replace this with something more generic
+        self.n_agents = cfg["env_kwargs"]["team_size"] * 2 if cfg["env_kwargs"]["spawn_opponents"] else cfg["env_kwargs"]["team_size"]
 
 
     @torch.no_grad()
@@ -48,7 +50,9 @@ class MARLAgent(object):
                 ts[i].log_prob = log_prob
                 actions.append(action)
 
-            next_obs, rews, done, _ = env.step(np.asarray(actions))
+            next_obs, rews, terminated, truncated, _ = env.step(np.asarray(actions))
+
+            done = terminated or truncated
 
             for i in range(n_agents):
                 if self.save_both_teams:

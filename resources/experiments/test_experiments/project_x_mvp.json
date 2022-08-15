@@ -1,0 +1,23 @@
+{
+  "experiment_name" : "Rocket League Test asdf",
+  "config_file" : "project_x_mvp.json",
+  "num_trials_per_adjustment" : 10,
+  "steps_per_save" : 100,
+
+  "config_adjustments" :
+  {
+    "adjustment_1":
+    {
+      "key_set": ["policy_optimizer", "batch_size"],
+      "range": {"begin": 100000, "end": 200000, "increment": 0},
+      "full_reset_per_increment": false
+    }
+  },
+
+  "terminal_conditions":
+  {
+    "max_epoch" : -100,
+    "max_timesteps" : 9999999999999,
+    "policy_reward" : -1
+  }
+}
