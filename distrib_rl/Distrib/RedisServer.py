@@ -84,7 +84,7 @@ class RedisServer(object):
         # Actual flattening happens here. Not very readable, but it's supposedly
         # the fastest way to flatten a list[list[Any]], per
         # https://stackoverflow.com/a/952952
-        return [reward for reward_list in reward_lists for reward in reward_list] 
+        return [reward for reward_list in reward_lists for reward in reward_list]
 
     def push_update(self, policy_params, val_params, strategy_frames, strategy_history, current_epoch):
         red = self.redis
@@ -172,7 +172,7 @@ class RedisServer(object):
         elapsed = time.time() - self.last_sps_measure
 
         if elapsed >= 1:
-            self.steps_per_second = 0.9 * self.steps_per_second + 0.1 * self.accumulated_sps / elapsed
+            self.steps_per_second = self.accumulated_sps / elapsed
             self.accumulated_sps = 0
             self.last_sps_measure = time.time()
 
