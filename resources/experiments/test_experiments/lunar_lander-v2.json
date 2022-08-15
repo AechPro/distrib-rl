@@ -9,7 +9,7 @@
     "adjustment_1":
       {
         "key_set": ["policy_optimizer", "gamma"],
-        "range": {"begin": 0.99, "end": 0.995, "increment": 0.1},
+        "range": {"begin": 0.95, "end": 0.99, "increment": 0.1},
         "full_reset_per_increment": false
       }
   },
