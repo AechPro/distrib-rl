@@ -28,8 +28,7 @@ setup(
         'psutil==5.8.0',
         'redis==3.5.3',
         'scipy>=1.8.0, <2.0.0',
-        'torch==1.11.0',
-        'torchvision==0.12.0',
+        'torch==1.12.1',
         'trueskill==0.4.5',
         'wandb==0.13.1'
     ],
