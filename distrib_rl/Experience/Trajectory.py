@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 class Trajectory(object):
-    def __init__(self):
+    def __init__(self, policy_epoch = 0):
         self.actions = []
         self.log_probs = []
         self.rewards = []
@@ -19,6 +19,7 @@ class Trajectory(object):
         self.is_partial = False
         self.ep_rew = 0
         self.noise_idx = 0
+        self.policy_epoch = policy_epoch
 
     def register_timestep(self, timestep : Timestep):
         action, log_prob, reward, obs, done = timestep.serialize()
@@ -29,8 +30,8 @@ class Trajectory(object):
         self.dones.append(done)
 
     def serialize(self):
-        return (self.actions, self.log_probs, self.rewards, self.obs, self.dones,
-                      self.future_rewards, self.values, self.advantages, self.pred_rets, self.ep_rew, self.noise_idx)
+        return ((self.actions, self.log_probs, self.rewards, self.obs, self.dones,
+                 self.future_rewards, self.values, self.advantages, self.pred_rets, self.ep_rew, self.noise_idx), self.policy_epoch)
 
     def deserialize(self, other):
         self.actions, self.log_probs, self.rewards, self.obs, self.dones, \

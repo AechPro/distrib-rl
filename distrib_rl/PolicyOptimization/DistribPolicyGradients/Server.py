@@ -155,15 +155,15 @@ class Server(object):
         self.terminal_conditions = conditions
 
     def is_done(self):
-        if self.terminal_conditions["max_epoch"] > 0:
+        if "max_epoch" in self.terminal_conditions and self.terminal_conditions["max_epoch"] > 0:
             if self.epoch >= self.terminal_conditions["max_epoch"]:
                 return True
 
-        if self.terminal_conditions["max_timesteps"] > 0:
+        if "max_timesteps" in self.terminal_conditions and self.terminal_conditions["max_timesteps"] > 0:
             if self.cumulative_ts >= self.terminal_conditions["max_timesteps"]:
                 return True
 
-        if self.terminal_conditions["policy_reward"] > 0:
+        if "policy_reward" in self.terminal_conditions and self.terminal_conditions["policy_reward"] > 0:
             if self.policy_reward >= self.terminal_conditions["policy_reward"]:
                 return True
 

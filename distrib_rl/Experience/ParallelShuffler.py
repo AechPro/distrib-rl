@@ -28,7 +28,15 @@ class ParallelShuffler(MPFProcess):
         self.server.connect(new_server_instance=False)
         self.exp_manager = DistribExperienceManager(self.cfg, server=self.server)
 
-        self.ts_per_update = int(round(self.cfg["policy_optimizer"]["new_returns_proportion"]*self.cfg["experience_replay"]["max_buffer_size"]))
+        if "updates_per_timestep" in self.cfg["policy_optimizer"]:
+
+            self.ts_per_update = 1 / self.cfg["policy_optimizer"]["updates_per_timestep"]
+
+            if self.ts_per_update > self.cfg["policy_optimizer"]["batch_size"]:
+                raise Exception("1 / updates_per_timestep must be smaller than batch_size")
+
+        else:
+            self.ts_per_update = int(round(self.cfg["policy_optimizer"]["new_returns_proportion"]*self.cfg["experience_replay"]["max_buffer_size"]))
         self.batch_size = self.cfg["policy_optimizer"]["batch_size"]
 
     def update(self, header, data):

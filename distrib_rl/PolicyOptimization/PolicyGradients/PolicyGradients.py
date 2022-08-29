@@ -25,11 +25,12 @@ class PolicyGradients(object):
 
         self.prev_mean = 0
         self.value_loss_fn = torch.nn.MSELoss()
+        self.epoch = 0
         self.epoch_info = {}
 
     def train(self):
         ts_consumed = 0
-        epoch = 0
+        self.epoch = 0
         while ts_consumed < int(self.cfg["policy_optimizer"]["max_timesteps"]):
             t1 = time.time()
             self.experience.clear()
@@ -51,18 +52,18 @@ class PolicyGradients(object):
             #self.epoch_info["omega"] = self.adaptive_omega.omega
             self.epoch_info["mean_policy_reward"] = rew
             #self.epoch_info["policy_novelty"] = self.strategy_optimizer.compute_policy_novelty()
-            self.epoch_info["epoch"] = epoch
+            self.epoch_info["epoch"] = self.epoch
             self.epoch_info["epoch_time"] = time.time() - t1
             ts_consumed += self.epoch_info["ts_consumed"]
 
             self.report_epoch()
             self.epoch_info.clear()
-            epoch += 1
+            self.epoch += 1
 
     @torch.no_grad()
     def collect(self):
-        trajectories = list(self.agent.gather_timesteps(self.policy, self.env,
-                                                   num_timesteps=self.cfg["policy_optimizer"]["timesteps_per_update"]))
+        trajectories = list(self.agent.gather_timesteps(self.policy, self.epoch, self.env,
+                                                        num_timesteps=self.cfg["policy_optimizer"]["timesteps_per_update"]))
         value_estimator = self.value_net
 
         rewards = []

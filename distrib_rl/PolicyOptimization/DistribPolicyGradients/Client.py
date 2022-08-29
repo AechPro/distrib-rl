@@ -32,13 +32,14 @@ class Client(object):
         n_sec = 1
         agent = self.agent
 
-        for trajectory in agent.gather_timesteps(self.policy, self.env, num_seconds=n_sec):
-            self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_TRAJECTORY, data=trajectory)
+        for trajectory in agent.gather_timesteps(self.policy, self.client.current_epoch, self.env, num_seconds=n_sec):
+            self.trajectory_finalizer_handler.put(
+                ClientTrajectoryFinalizer.HEADER_TRAJECTORY, data=trajectory)
 
         self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_FLUSH,
                                               data=agent.ep_rewards if len(agent.ep_rewards) > 0 else None)
         agent.ep_rewards = []
-    
+
     def update_models(self):
         policy_params, strategy_frames, strategy_history, success = self.client.get_latest_update()
         if not success:

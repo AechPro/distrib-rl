@@ -4,29 +4,15 @@
   "num_trials_per_adjustment" : 5,
   "steps_per_save" : 50,
 
-  "config_adjustments" : {
+  "config_adjustments": {
     "parallel_adjustment_1": {
-      "list_adjustment_1": { // vary batch_size
-          "key_set": ["policy_optimizer", "batch_size"],
-          "values": [25, 50, 100, 250, 500, 1000],
-          "full_reset_per_increment": false
-      },
-      "list_adjustment_2": { // keep updates_per_ts constant at 1/10
-          "key_set": ["policy_optimizer", "new_returns_proportion"],
-          "values": [0.4, 0.2, 0.1, 0.04, 0.02, 0.01],
-          "full_reset_per_increment": false
-      },
-      "list_adjustment_3": { // keep updates_per_epoch constant at 100
-          "key_set": ["experience_replay", "max_buffer_size"],
-          "values": [2500, 5000, 10000, 25000, 50000, 100000],
-          "full_reset_per_increment": false
+      "null_adjustment_1": {
+        "name": "null_adjustment"
       }
     }
   },
-
   "terminal_conditions": {
-    "max_epoch" : -100,
-    "max_timesteps" : 1e6,
-    "policy_reward" : -1
+    "policy_reward" : 200,
+    "max_timesteps": 1e7
   }
 }

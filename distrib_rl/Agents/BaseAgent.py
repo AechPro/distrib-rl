@@ -11,7 +11,7 @@ class BaseAgent(object):
         self.current_ep_rew = 0
 
     @torch.no_grad()
-    def gather_timesteps(self, policy, env, num_timesteps=None, num_seconds=None, num_eps=None):
+    def gather_timesteps(self, policy, policy_epoch, env, num_timesteps=None, num_seconds=None, num_eps=None):
         trajectoryCount = 0
         trajectory = Trajectory()
         if self.leftover_obs is None:
