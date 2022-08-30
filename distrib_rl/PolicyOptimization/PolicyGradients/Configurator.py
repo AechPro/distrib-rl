@@ -21,7 +21,7 @@ def build_vars(cfg):
     seed = cfg.get("seed", None)
     options = cfg.get("env_kwargs", None)
 
-    env.reset(seed = seed, options = options)
+    env.reset(seed=seed, options=options)
 
     env.seed(cfg["seed"])
     env.action_space.seed(cfg["seed"])
@@ -50,16 +50,37 @@ def build_vars(cfg):
     policy_gradient_optimizer.omega = omega
     novelty_gradient_optimizer.omega = omega
 
-    learner = PPO(cfg, policy, value_net, policy_gradient_optimizer, value_gradient_optimizer, gradient_builder, omega)
+    learner = PPO(
+        cfg,
+        policy,
+        value_net,
+        policy_gradient_optimizer,
+        value_gradient_optimizer,
+        gradient_builder,
+        omega,
+    )
 
+    return (
+        env,
+        experience,
+        gradient_builder,
+        policy_gradient_optimizer,
+        value_gradient_optimizer,
+        agent,
+        policy,
+        strategy_optimizer,
+        omega,
+        value_net,
+        novelty_gradient_optimizer,
+        learner,
+    )
 
-    return env, experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, agent, policy, \
-           strategy_optimizer, omega, value_net, novelty_gradient_optimizer, learner
 
 def _register_custom_envs(cfg):
     custom_envs = cfg.get("custom_envs", [])
     for custom_env in custom_envs:
         importlib.import_module(custom_env)
+
 
 def _load_env(name):
     if ":" in name:
@@ -67,6 +88,7 @@ def _load_env(name):
     mod = importlib.import_module(mod_name)
     fn = getattr(mod, attr_name)
     return fn
+
 
 def _is_configurable(func):
     return "config" in inspect.signature(func).parameters

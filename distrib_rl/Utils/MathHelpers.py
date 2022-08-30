@@ -5,7 +5,7 @@ import functools
 
 
 def compute_torch_normal_entropy(sigma):
-    return (0.5 + 0.5*np.log(2*np.pi) + torch.log(sigma)).sum(dim=-1).item()
+    return (0.5 + 0.5 * np.log(2 * np.pi) + torch.log(sigma)).sum(dim=-1).item()
 
 
 def minmax_norm(x, min_val, max_val):
@@ -16,7 +16,7 @@ def minmax_norm(x, min_val, max_val):
 
 def compute_array_stats(arr):
     if len(arr) == 0 or type(arr) not in (list, tuple, np.ndarray):
-        return 0,1,0,0
+        return 0, 1, 0, 0
     return np.mean(arr), np.std(arr), np.min(arr), np.max(arr)
 
 
@@ -37,7 +37,7 @@ def apply_affine_map(value, from_min, from_max, to_min, to_max):
 
 @functools.lru_cache()
 def map_policy_to_continuous_action(policy_output):
-    n = policy_output.shape[-1]//2
+    n = policy_output.shape[-1] // 2
     if len(policy_output.shape) == 1:
         mean = policy_output[:n]
         std = policy_output[n:]

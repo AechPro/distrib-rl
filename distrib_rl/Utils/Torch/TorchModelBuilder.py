@@ -1,15 +1,27 @@
 import numpy as np
 import torch.nn as nn
 from distrib_rl.Utils.Torch.TorchFunctions import *
-#from distrib_rl.Policies.PyTorch.Recurrent import LSTMModule
+
+# from distrib_rl.Policies.PyTorch.Recurrent import LSTMModule
+
 
 def build_from_json(model_json, input_shape, output_shape, channels_first=True):
-    #This assumes that the input shape is (seq, features) for recurrent/ff architectures and
-    #(channels, width, height) for cnn.
+    # This assumes that the input shape is (seq, features) for recurrent/ff architectures and
+    # (channels, width, height) for cnn.
 
     type = model_json["type"][0].lower().strip()
     in_features = None
-    if type in ("ff", "ffnn", "mlp", "feed_forward", "feedforward", "feed forward", "fully_connected", "fullyconnected", "fully connected"):
+    if type in (
+        "ff",
+        "ffnn",
+        "mlp",
+        "feed_forward",
+        "feedforward",
+        "feed forward",
+        "fully_connected",
+        "fullyconnected",
+        "fully connected",
+    ):
         in_features = np.prod([input_shape])
 
     elif type in ("recurrent", "rec", "rnn", "lstm", "gru"):
@@ -17,12 +29,14 @@ def build_from_json(model_json, input_shape, output_shape, channels_first=True):
         in_features = np.prod([input_shape])
 
     elif type in ("cnn", "conv", "convolutional", "convolution", "conv2d"):
-        in_features = input_shape[0] #channels first
+        in_features = input_shape[0]  # channels first
 
     conv_shapes = prepare_conv_shapes(model_json, input_shape, output_shape)
     model_objects = []
     for layer_name, layer_json in model_json["layers"].items():
-        layer_objects, in_features = parse_and_build_layer(layer_json, in_features, output_shape, conv_shapes)
+        layer_objects, in_features = parse_and_build_layer(
+            layer_json, in_features, output_shape, conv_shapes
+        )
         model_objects += layer_objects
 
     model = nn.Sequential(*model_objects)
@@ -41,8 +55,14 @@ def parse_and_build_layer(layer_json, in_features, output_shape, conv_shapes):
 
     if layer_type in ("out", "output"):
         output_features = np.prod((output_shape,))
-    elif layer_type in ("diag_out", "diagonal_output", "diagonal_out", "gaussian_out", "diagonal_gaussian",):
-        output_features = np.prod((output_shape,))*2
+    elif layer_type in (
+        "diag_out",
+        "diagonal_output",
+        "diagonal_out",
+        "gaussian_out",
+        "diagonal_gaussian",
+    ):
+        output_features = np.prod((output_shape,)) * 2
     else:
         output_features = layer_json["num_nodes"]
 
@@ -68,17 +88,32 @@ def parse_and_build_layer(layer_json, in_features, output_shape, conv_shapes):
         # layer_object = LSTMModule(in_features=in_features,
         #                           out_features=output_features)
 
-    elif layer_type in ("ff", "feedforward", "feed_forward","fc", "fullyconnected", "fully connected", "fully_connected",
-                        "out", "output", "diag_out", "diagonal_output", "diagonal_out", "gaussian_out", "diagonal_gaussian"):
-        layer_object = nn.Linear(in_features=in_features,
-                                 out_features=output_features)
+    elif layer_type in (
+        "ff",
+        "feedforward",
+        "feed_forward",
+        "fc",
+        "fullyconnected",
+        "fully connected",
+        "fully_connected",
+        "out",
+        "output",
+        "diag_out",
+        "diagonal_output",
+        "diagonal_out",
+        "gaussian_out",
+        "diagonal_gaussian",
+    ):
+        layer_object = nn.Linear(in_features=in_features, out_features=output_features)
 
     elif layer_type in ("conv", "cnn", "conv2d", "convlution", "convolution2d"):
-        layer_object = nn.Conv2d(in_channels=in_features,
-                                 out_channels=output_features,
-                                 kernel_size=layer_json["kernel"],
-                                 stride=layer_json["stride"],
-                                 padding=layer_json["padding"])
+        layer_object = nn.Conv2d(
+            in_channels=in_features,
+            out_channels=output_features,
+            kernel_size=layer_json["kernel"],
+            stride=layer_json["stride"],
+            padding=layer_json["padding"],
+        )
 
     activation_object = parse_and_build_activation(layer_json)
 
@@ -87,6 +122,7 @@ def parse_and_build_layer(layer_json, in_features, output_shape, conv_shapes):
     if activation_object is not None:
         layer_objects.append(activation_object)
     return layer_objects, output_features
+
 
 def prepare_conv_shapes(model_json, input_shape, output_shape):
     if type(input_shape) not in (tuple, list):
@@ -115,7 +151,9 @@ def prepare_conv_shapes(model_json, input_shape, output_shape):
         if type(padding) not in (tuple, list):
             padding = [padding, padding]
 
-        height_out = ((shape_2d[1] + 2 * padding[0] - (kernel_size[0])) // stride[0]) + 1
+        height_out = (
+            (shape_2d[1] + 2 * padding[0] - (kernel_size[0])) // stride[0]
+        ) + 1
         width_out = ((shape_2d[0] + 2 * padding[1] - (kernel_size[1])) // stride[1]) + 1
 
         old = (shape_2d[0], shape_2d[1])
@@ -123,6 +161,7 @@ def prepare_conv_shapes(model_json, input_shape, output_shape):
         layer_shapes.append((layer_json["num_nodes"], width_out, height_out))
 
     return layer_shapes
+
 
 def parse_and_build_extra(extra_name, in_features):
     t = extra_name
@@ -139,10 +178,11 @@ def parse_and_build_extra(extra_name, in_features):
     elif t in ("flat", "flatten"):
         obj = Flatten()
 
-    elif t in ("layernorm", "ln","layer_norm","layer norm"):
+    elif t in ("layernorm", "ln", "layer_norm", "layer norm"):
         obj = nn.LayerNorm(normalized_shape=in_features)
 
     return obj
+
 
 def parse_and_build_activation(layer_json):
     t = layer_json["activation_function"].lower().strip()
@@ -150,19 +190,19 @@ def parse_and_build_activation(layer_json):
         t = t.lower().strip()
 
     function = None
-    if t in ('relu',):
+    if t in ("relu",):
         function = nn.ReLU()
 
-    elif t in ('tanh',):
+    elif t in ("tanh",):
         function = nn.Tanh()
 
-    elif t in ('continuous_map', "cont_map", "map_cont", "mapped_continuous"):
+    elif t in ("continuous_map", "cont_map", "map_cont", "mapped_continuous"):
         function = MapContinuousToAction()
 
     elif t in ("softmax", "soft max"):
         function = nn.Softmax(dim=-1)
 
-    elif t in ('sigmoid', 'logit', 'logits'):
+    elif t in ("sigmoid", "logit", "logits"):
         function = nn.Sigmoid()
 
     elif t in ("clamped", "clamped_linear", "clamp"):

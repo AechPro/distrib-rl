@@ -1,6 +1,7 @@
 import operator
 from functools import reduce
 
+
 class NullAdjuster(object):
     def __init__(self):
         self.name = None
@@ -29,4 +30,3 @@ class NullAdjuster(object):
 
     def reset_per_increment(self):
         return False
-

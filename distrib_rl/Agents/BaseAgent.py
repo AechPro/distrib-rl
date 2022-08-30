@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import time
 
+
 class BaseAgent(object):
     def __init__(self, cfg):
         self.cfg = cfg
@@ -11,7 +12,15 @@ class BaseAgent(object):
         self.current_ep_rew = 0
 
     @torch.no_grad()
-    def gather_timesteps(self, policy, policy_epoch, env, num_timesteps=None, num_seconds=None, num_eps=None):
+    def gather_timesteps(
+        self,
+        policy,
+        policy_epoch,
+        env,
+        num_timesteps=None,
+        num_seconds=None,
+        num_eps=None,
+    ):
         trajectoryCount = 0
         trajectory = Trajectory()
         if self.leftover_obs is None:
@@ -50,9 +59,14 @@ class BaseAgent(object):
                 next_obs = env.reset()
 
             obs = next_obs
-            if num_timesteps is not None and cumulative_timesteps >= num_timesteps or \
-               num_seconds is not None and time.time() - start_time >= num_seconds or \
-               num_eps is not None and trajectoryCount >= num_eps:
+            if (
+                num_timesteps is not None
+                and cumulative_timesteps >= num_timesteps
+                or num_seconds is not None
+                and time.time() - start_time >= num_seconds
+                or num_eps is not None
+                and trajectoryCount >= num_eps
+            ):
                 break
             # print((time.perf_counter()-start_time)/cumulative_timesteps," | ",act_time/cumulative_timesteps," | ",step_time/cumulative_timesteps)
             # env.render()

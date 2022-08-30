@@ -1,4 +1,3 @@
-
 class Message(object):
     NOVELTY_MAZE_HEADER_END_TOKEN = "NVMEHEADER"
     NOVELTY_MAZE_BODY_END_TOKEN = "NVMEBODY"
@@ -27,16 +26,20 @@ class Message(object):
         self.header = header
 
     def serialize(self):
-        return "{header}{header_token}{body}{body_token}\0".format(header=self.header,
-                                                                   header_token=Message.NOVELTY_MAZE_HEADER_END_TOKEN,
-                                                                   body=self.body,
-                                                                   body_token=Message.NOVELTY_MAZE_BODY_END_TOKEN)
+        return "{header}{header_token}{body}{body_token}\0".format(
+            header=self.header,
+            header_token=Message.NOVELTY_MAZE_HEADER_END_TOKEN,
+            body=self.body,
+            body_token=Message.NOVELTY_MAZE_BODY_END_TOKEN,
+        )
 
     def deserialize(self, serialized_str):
         s = serialized_str
 
-        header = s[:s.find(Message.NOVELTY_MAZE_HEADER_END_TOKEN)]
-        start = s.find(Message.NOVELTY_MAZE_HEADER_END_TOKEN) + len(Message.NOVELTY_MAZE_HEADER_END_TOKEN)
+        header = s[: s.find(Message.NOVELTY_MAZE_HEADER_END_TOKEN)]
+        start = s.find(Message.NOVELTY_MAZE_HEADER_END_TOKEN) + len(
+            Message.NOVELTY_MAZE_HEADER_END_TOKEN
+        )
         end = s.find(Message.NOVELTY_MAZE_BODY_END_TOKEN)
         body = s[start:end]
 

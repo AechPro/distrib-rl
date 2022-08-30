@@ -1,6 +1,7 @@
-def build_component_factory(component_name, builders, arg_transformers, require_list=False, optional=False):
-
-    def register(key, builder, args_transformer = None):
+def build_component_factory(
+    component_name, builders, arg_transformers, require_list=False, optional=False
+):
+    def register(key, builder, args_transformer=None):
         builders[key] = builder
         if args_transformer:
             arg_transformers[key] = args_transformer
@@ -11,15 +12,15 @@ def build_component_factory(component_name, builders, arg_transformers, require_
 
         if require_list and type(config) != list:
             raise AttributeError(f"{component_name} must be list of {component_name}s")
-        
+
         if type(config) == str:
-            return build_individual({ config: {} })
+            return build_individual({config: {}})
 
         if type(config) == list or len(config) > 1:
             if type(config) == dict:
-                return [build_individual({ key: config[key] }) for key in config]
+                return [build_individual({key: config[key]}) for key in config]
 
-            return [ build(c) for c in config ]
+            return [build(c) for c in config]
 
         elif len(config) == 1:
             return build_individual(config)
@@ -40,5 +41,5 @@ def build_component_factory(component_name, builders, arg_transformers, require_
             kwargs = arg_transformers[key](**kwargs)
 
         return Builder(**kwargs)
-    
+
     return register, build

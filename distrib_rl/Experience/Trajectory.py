@@ -3,8 +3,9 @@ from distrib_rl.Utils import MathHelpers as RLMath
 import numpy as np
 import torch
 
+
 class Trajectory(object):
-    def __init__(self, policy_epoch = 0):
+    def __init__(self, policy_epoch=0):
         self.actions = []
         self.log_probs = []
         self.rewards = []
@@ -21,7 +22,7 @@ class Trajectory(object):
         self.noise_idx = 0
         self.policy_epoch = policy_epoch
 
-    def register_timestep(self, timestep : Timestep):
+    def register_timestep(self, timestep: Timestep):
         action, log_prob, reward, obs, done = timestep.serialize()
         self.actions.append(action)
         self.log_probs.append(log_prob)
@@ -30,13 +31,37 @@ class Trajectory(object):
         self.dones.append(done)
 
     def serialize(self):
-        return ((self.actions, self.log_probs, self.rewards, self.obs, self.dones,
-                 self.future_rewards, self.values, self.advantages, self.pred_rets, self.ep_rew, self.noise_idx), self.policy_epoch)
+        return (
+            (
+                self.actions,
+                self.log_probs,
+                self.rewards,
+                self.obs,
+                self.dones,
+                self.future_rewards,
+                self.values,
+                self.advantages,
+                self.pred_rets,
+                self.ep_rew,
+                self.noise_idx,
+            ),
+            self.policy_epoch,
+        )
 
     def deserialize(self, other):
-        self.actions, self.log_probs, self.rewards, self.obs, self.dones, \
-        self.future_rewards, self.values, self.advantages, self.pred_rets, self.ep_rew, self.noise_idx = other
-
+        (
+            self.actions,
+            self.log_probs,
+            self.rewards,
+            self.obs,
+            self.dones,
+            self.future_rewards,
+            self.values,
+            self.advantages,
+            self.pred_rets,
+            self.ep_rew,
+            self.noise_idx,
+        ) = other
 
     def truncate(self, stop):
         self.actions = self.actions[:stop]
@@ -58,7 +83,9 @@ class Trajectory(object):
             # self.rewards = rews.tolist()
 
         if gamma is not None:
-            self.future_rewards = RLMath.compute_discounted_future_sum(self.rewards, gamma).tolist()
+            self.future_rewards = RLMath.compute_discounted_future_sum(
+                self.rewards, gamma
+            ).tolist()
 
         if values is not None:
             self.values = [arg for arg in values]

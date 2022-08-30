@@ -1,11 +1,14 @@
 from distrib_rl.Agents import PolicyGradientsAgent
 import gym
 
+
 class FakeDiscretePolicy(object):
     def get_action(self, obs):
         return 1, 1.0
+
     def get_output(self, obs):
         return [1]
+
 
 def run_test():
     cfg = {}
@@ -21,6 +24,7 @@ def run_test():
 
     reward = agent.evaluate_policy(policy, env, num_timesteps=num_timesteps)
     print("Eval reward: {}".format(reward))
+
 
 if __name__ == "__main__":
     run_test()

@@ -9,12 +9,14 @@ from distrib_rl.Policies import PolicyFactory
 
 
 class ClientTrajectoryFinalizer(MPFProcess):
-    HEADER_RESET="reset"
+    HEADER_RESET = "reset"
     HEADER_FLUSH = "flush_data"
     HEADER_TRAJECTORY = "trajectory"
 
     def __init__(self, loop_wait_period=0.1):
-        super().__init__("ClientTrajectoryFinalizer", loop_wait_period=0.1, process_all_updates=True)
+        super().__init__(
+            "ClientTrajectoryFinalizer", loop_wait_period=0.1, process_all_updates=True
+        )
         self.client = None
         self.cfg = None
         self.gamma = None
@@ -25,12 +27,12 @@ class ClientTrajectoryFinalizer(MPFProcess):
         self.trajectories_to_send = None
         self.total_timesteps = None
         self.t0 = None
-    
+
     def init(self):
         self.handlers = {
             ClientTrajectoryFinalizer.HEADER_RESET: self._reset,
             ClientTrajectoryFinalizer.HEADER_FLUSH: self._flush,
-            ClientTrajectoryFinalizer.HEADER_TRAJECTORY: self._trajectory
+            ClientTrajectoryFinalizer.HEADER_TRAJECTORY: self._trajectory,
         }
 
         self.client = None
@@ -51,10 +53,12 @@ class ClientTrajectoryFinalizer(MPFProcess):
 
         pf_cfg = {
             "device": cfg.get("device", "cpu"),
-            "value_estimator": cfg["value_estimator"]
+            "value_estimator": cfg["value_estimator"],
         }
 
-        models = PolicyFactory.get_from_cfg(pf_cfg, env_space_shapes=cfg["env_space_shapes"])
+        models = PolicyFactory.get_from_cfg(
+            pf_cfg, env_space_shapes=cfg["env_space_shapes"]
+        )
         self.value_estimator = models["value_estimator"]
 
         if self.client is not None:
@@ -77,22 +81,25 @@ class ClientTrajectoryFinalizer(MPFProcess):
 
         self.trajectories_to_send = []
         self.total_timesteps = 0
-        
+
     def update(self, header, data):
         handler = self.handlers.get(header, None)
         if not handler:
-            print(f"WARNING: ClientTrajectoryFinalizer received unknown message header '{header}'")
+            print(
+                f"WARNING: ClientTrajectoryFinalizer received unknown message header '{header}'"
+            )
             return
 
         handler(data)
 
-    
     def _flush(self, rewards):
         if self._server_is_running():
             t1 = time.perf_counter()
 
             if len(self.trajectories_to_send) > 0:
-                self.client.push_data(RedisKeys.CLIENT_EXPERIENCE_KEY, self.trajectories_to_send)
+                self.client.push_data(
+                    RedisKeys.CLIENT_EXPERIENCE_KEY, self.trajectories_to_send
+                )
 
                 t2 = time.perf_counter()
 
@@ -104,18 +111,23 @@ class ClientTrajectoryFinalizer(MPFProcess):
                 if rewards:
                     self.client.push_data(RedisKeys.CLIENT_POLICY_REWARD_KEY, rewards)
 
-                print("packed and pushed {} trajectories containing {} timesteps in {:7.5f}s ({:.2f} sps)".format(
-                    len(self.trajectories_to_send),
-                    self.total_timesteps,
-                    t2-t1,
-                    steps_per_second))
+                print(
+                    "packed and pushed {} trajectories containing {} timesteps in {:7.5f}s ({:.2f} sps)".format(
+                        len(self.trajectories_to_send),
+                        self.total_timesteps,
+                        t2 - t1,
+                        steps_per_second,
+                    )
+                )
             else:
                 print("No trajectories to send.")
 
             value_params = self.client.get_latest_value_params()
             if value_params is not None:
                 self.value_estimator.set_trainable_flat(value_params)
-                print(f"updated value estimator to version {self.client.current_value_epoch}")
+                print(
+                    f"updated value estimator to version {self.client.current_value_epoch}"
+                )
 
             self.reward_stats = self.client.get_reward_stats()
 
@@ -123,17 +135,25 @@ class ClientTrajectoryFinalizer(MPFProcess):
         self.trajectories_to_send = []
         self.t0 = time.perf_counter()
         print("")
-    
+
     @torch.no_grad()
     def _trajectory(self, trajectory):
         if self.t0 is None:
             self.t0 = time.perf_counter()
 
-        values = self.value_estimator.get_output(np.asarray(trajectory.obs + [trajectory.final_obs])).flatten().tolist()
-        trajectory.finalize(gamma=self.gamma,
-                            reward_stats=self.reward_stats,
-                            values=values,
-                            lmbda=self.lmbda)
+        values = (
+            self.value_estimator.get_output(
+                np.asarray(trajectory.obs + [trajectory.final_obs])
+            )
+            .flatten()
+            .tolist()
+        )
+        trajectory.finalize(
+            gamma=self.gamma,
+            reward_stats=self.reward_stats,
+            values=values,
+            lmbda=self.lmbda,
+        )
 
         n_timesteps = len(trajectory.rewards)
         self.trajectories_to_send.append(trajectory.serialize())

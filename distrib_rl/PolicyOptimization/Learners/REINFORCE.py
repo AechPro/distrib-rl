@@ -1,8 +1,9 @@
 import torch
 import numpy as np
 
+
 class REINFORCE(object):
-    def __init__(self, cfg, policy,  policy_optimizer, gradient_builder, adaptive_omega):
+    def __init__(self, cfg, policy, policy_optimizer, gradient_builder, adaptive_omega):
         self.device = cfg["device"]
         self.cfg = cfg
         self.policy = policy
@@ -28,7 +29,7 @@ class REINFORCE(object):
             old_probs = batch.log_probs
 
             log_probs, entropy = policy.get_backprop_data(obs, acts)
-            policy_loss = -(rews*log_probs).mean()
+            policy_loss = -(rews * log_probs).mean()
 
             loss = policy_loss
             loss.backward()
@@ -50,12 +51,11 @@ class REINFORCE(object):
         mean_entropy /= len(batches) * epochs
         mean_divergence /= len(batches) * epochs
 
-
         report = {
-                 "n_updates":n_updates,
-                 "mean_entropy":mean_entropy,
-                 "mean_kl":mean_divergence,
-                 "clip_fraction":np.mean(clip_fractions)
-                  }
+            "n_updates": n_updates,
+            "mean_entropy": mean_entropy,
+            "mean_kl": mean_divergence,
+            "clip_fraction": np.mean(clip_fractions),
+        }
 
         return report

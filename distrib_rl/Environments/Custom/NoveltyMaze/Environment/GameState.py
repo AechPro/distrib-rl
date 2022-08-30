@@ -11,8 +11,10 @@ class GameState(object):
         self._decode(state_str)
 
     def _decode(self, state_str):
-        #print("Decoding:",state_str)
-        state_vals = state_str.split(Message.NOVELTY_MAZE_MESSAGE_DATA_DELIMITER)[:-1] #there will be a trailing delimiter
+        # print("Decoding:",state_str)
+        state_vals = state_str.split(Message.NOVELTY_MAZE_MESSAGE_DATA_DELIMITER)[
+            :-1
+        ]  # there will be a trailing delimiter
         state = [float(arg) for arg in state_vals]
 
         self.obs = state[:10]

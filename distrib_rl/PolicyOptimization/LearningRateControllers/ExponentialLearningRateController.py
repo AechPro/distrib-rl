@@ -1,4 +1,3 @@
-
 class ExponentialLearningRateController(object):
     def __init__(self, cfg):
         self.clip_target = cfg["lr_adjuster"].get("clip_target", None)
@@ -7,8 +6,10 @@ class ExponentialLearningRateController(object):
         self.max_lr = cfg["lr_adjuster"].get("max_lr", 1.0)
 
         if self.lr_rate is None and self.clip_target is not None:
-            raise ValueError("Required ExponentialLearningRateController parameter 'rate' is not specified. " +
-                "Either specify it or leave 'clip_target' unspecified for no learning rate control.")
+            raise ValueError(
+                "Required ExponentialLearningRateController parameter 'rate' is not specified. "
+                + "Either specify it or leave 'clip_target' unspecified for no learning rate control."
+            )
 
     def adjust(self, optimizer, mean_clip):
         if self.clip_target is None:

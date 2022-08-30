@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 
+
 class GradientBuilder(object):
     def __init__(self, cfg):
         self.cfg = cfg

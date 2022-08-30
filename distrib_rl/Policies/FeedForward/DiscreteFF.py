@@ -31,7 +31,9 @@ class DiscreteFF(Policy):
         return log_probs.to(self.device), entropy.to(self.device).mean()
 
     def build_model(self, model_json, input_shape, output_shape):
-        self.model = TorchModelBuilder.build_from_json(model_json, input_shape, output_shape, channels_first=True)
+        self.model = TorchModelBuilder.build_from_json(
+            model_json, input_shape, output_shape, channels_first=True
+        )
         self.get_trainable_flat(force_update=True)
         self.model.eval()
         self.input_shape = input_shape

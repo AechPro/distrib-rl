@@ -5,6 +5,7 @@ from .ParallelAdjuster import ParallelAdjuster
 from .ListAdjuster import ListAdjuster
 from .NullAdjuster import NullAdjuster
 
+
 def build_adjusters_for_experiment(adjustments_json, cfg):
     adjusters = []
 
@@ -14,6 +15,7 @@ def build_adjusters_for_experiment(adjustments_json, cfg):
             adjusters.append(adjuster)
 
     return adjusters
+
 
 def build_adjuster(adjuster_type, adjustment_json, cfg):
     a_t = adjuster_type.lower().strip()

@@ -4,7 +4,16 @@ import time
 
 
 class PPO(object):
-    def __init__(self, cfg, policy, value_net, policy_optimizer, value_optimizer, gradient_builder, adaptive_omega):
+    def __init__(
+        self,
+        cfg,
+        policy,
+        value_net,
+        policy_optimizer,
+        value_optimizer,
+        gradient_builder,
+        adaptive_omega,
+    ):
         self.cfg = cfg
         self.device = cfg["device"]
         self.policy = policy
@@ -60,7 +69,9 @@ class PPO(object):
 
                     ratio = torch.exp(log_probs - old_probs)
                     clipped = torch.clamp(ratio, 1.0 - clip_range, 1.0 + clip_range)
-                    policy_loss = -torch.min(ratio*advantages, clipped*advantages).mean()
+                    policy_loss = -torch.min(
+                        ratio * advantages, clipped * advantages
+                    ).mean()
 
                     with torch.no_grad():
                         log_ratio = log_probs - old_probs
@@ -68,13 +79,19 @@ class PPO(object):
                         kl = kl.mean().detach().cpu().item()
 
                         # From the stable-baselines3 implementation of PPO.
-                        clip_fractions.append(torch.mean((torch.abs(ratio - 1) > clip_range).float()).item())
+                        clip_fractions.append(
+                            torch.mean(
+                                (torch.abs(ratio - 1) > clip_range).float()
+                            ).item()
+                        )
 
                     condition = kl > max_kl
                     if not condition:
                         loss = policy_loss - entropy * ent_coef
                         loss.backward()
-                        builder.contribute_gradient_from_model(policy, 0.5, force_norm=False)
+                        builder.contribute_gradient_from_model(
+                            policy, 0.5, force_norm=False
+                        )
                         builder.update_model(policy, policy_optimizer)
                         n_updates += 1
 
@@ -109,15 +126,15 @@ class PPO(object):
         self.n_epochs += 1
         self.cumulative_model_updates += n_updates
         report = {
-                    "batch_time": (time.time() - t1) / n_iterations,
-                    "n_batches" : n_iterations,
-                    "n_updates":n_updates,
-                    "cumulative_model_updates": self.cumulative_model_updates,
-                    "mean_entropy":mean_entropy,
-                    "mean_kl":mean_divergence,
-                    "val_loss":mean_val_loss,
-                    "clip_fraction":mean_clip,
-                    "learning_rate":lr_report
-                  }
+            "batch_time": (time.time() - t1) / n_iterations,
+            "n_batches": n_iterations,
+            "n_updates": n_updates,
+            "cumulative_model_updates": self.cumulative_model_updates,
+            "mean_entropy": mean_entropy,
+            "mean_kl": mean_divergence,
+            "val_loss": mean_val_loss,
+            "clip_fraction": mean_clip,
+            "learning_rate": lr_report,
+        }
 
         return report

@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import time
 
+
 class MARLAgent(object):
     def __init__(self, cfg):
         self.cfg = cfg
@@ -18,11 +19,22 @@ class MARLAgent(object):
         self.policies = None
 
         # TODO: replace this with something more generic
-        self.n_agents = cfg["env_kwargs"]["team_size"] * 2 if cfg["env_kwargs"]["spawn_opponents"] else cfg["env_kwargs"]["team_size"]
-
+        self.n_agents = (
+            cfg["env_kwargs"]["team_size"] * 2
+            if cfg["env_kwargs"]["spawn_opponents"]
+            else cfg["env_kwargs"]["team_size"]
+        )
 
     @torch.no_grad()
-    def gather_timesteps(self, policy, policy_epoch, env, num_timesteps=None, num_seconds=None, num_eps=None):
+    def gather_timesteps(
+        self,
+        policy,
+        policy_epoch,
+        env,
+        num_timesteps=None,
+        num_seconds=None,
+        num_eps=None,
+    ):
         n_agents = self.n_agents
         agents_to_save = n_agents if self.save_both_teams else n_agents // 2
 
@@ -30,10 +42,12 @@ class MARLAgent(object):
             self.init_opponent_policy(env)
 
         if self.policies is None:
-            self.policies = [policy for _ in range(n_agents // 2)] + [self.opponent_policy for _ in range(n_agents // 2)]
+            self.policies = [policy for _ in range(n_agents // 2)] + [
+                self.opponent_policy for _ in range(n_agents // 2)
+            ]
         policies = self.policies
         experience_trajectories = []
-        trajectories = [Trajectory(policy_epoch) for _  in range(n_agents)]
+        trajectories = [Trajectory(policy_epoch) for _ in range(n_agents)]
 
         obs = self.leftover_obs
         if obs is None:
@@ -57,7 +71,7 @@ class MARLAgent(object):
             for i in range(n_agents):
                 if self.save_both_teams:
                     self.current_ep_rew += rews[i]
-                elif i < n_agents//2:
+                elif i < n_agents // 2:
                     self.current_ep_rew += rews[i]
 
                 ts[i].reward = rews[i]
@@ -68,7 +82,7 @@ class MARLAgent(object):
             cumulative_timesteps += 1
             if done:
 
-                self.ep_rewards.append(self.current_ep_rew/agents_to_save)
+                self.ep_rewards.append(self.current_ep_rew / agents_to_save)
                 self.current_ep_rew = 0
 
                 for i in range(agents_to_save):
@@ -82,12 +96,17 @@ class MARLAgent(object):
                 self.get_next_opponent(policy)
 
                 next_obs = env.reset()
-                trajectories = [Trajectory(policy_epoch) for _  in range(n_agents)]
+                trajectories = [Trajectory(policy_epoch) for _ in range(n_agents)]
 
             obs = next_obs
-            if num_timesteps is not None and cumulative_timesteps >= num_timesteps or \
-               num_seconds is not None and time.time() - start_time >= num_seconds or \
-               num_eps is not None and len(experience_trajectories) >= num_eps:
+            if (
+                num_timesteps is not None
+                and cumulative_timesteps >= num_timesteps
+                or num_seconds is not None
+                and time.time() - start_time >= num_seconds
+                or num_eps is not None
+                and len(experience_trajectories) >= num_eps
+            ):
                 break
 
         self.leftover_obs = next_obs.copy()

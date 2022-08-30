@@ -1,9 +1,12 @@
 from distrib_rl.MPFramework import MPFProcessHandler
 from distrib_rl.PolicyOptimization.DistribPolicyGradients import Configurator
 from distrib_rl.Distrib import RedisClient, RedisServer
-from distrib_rl.PolicyOptimization.DistribPolicyGradients.ClientTrajectoryFinalizer import ClientTrajectoryFinalizer
+from distrib_rl.PolicyOptimization.DistribPolicyGradients.ClientTrajectoryFinalizer import (
+    ClientTrajectoryFinalizer,
+)
 import torch
 import time
+
 
 class Client(object):
     def __init__(self):
@@ -32,16 +35,26 @@ class Client(object):
         n_sec = 1
         agent = self.agent
 
-        for trajectory in agent.gather_timesteps(self.policy, self.client.current_epoch, self.env, num_seconds=n_sec):
+        for trajectory in agent.gather_timesteps(
+            self.policy, self.client.current_epoch, self.env, num_seconds=n_sec
+        ):
             self.trajectory_finalizer_handler.put(
-                ClientTrajectoryFinalizer.HEADER_TRAJECTORY, data=trajectory)
+                ClientTrajectoryFinalizer.HEADER_TRAJECTORY, data=trajectory
+            )
 
-        self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_FLUSH,
-                                              data=agent.ep_rewards if len(agent.ep_rewards) > 0 else None)
+        self.trajectory_finalizer_handler.put(
+            ClientTrajectoryFinalizer.HEADER_FLUSH,
+            data=agent.ep_rewards if len(agent.ep_rewards) > 0 else None,
+        )
         agent.ep_rewards = []
 
     def update_models(self):
-        policy_params, strategy_frames, strategy_history, success = self.client.get_latest_update()
+        (
+            policy_params,
+            strategy_frames,
+            strategy_history,
+            success,
+        ) = self.client.get_latest_update()
         if not success:
             return False
 
@@ -53,13 +66,14 @@ class Client(object):
     def check_server_status(self):
         server_status_flag = self.client.check_server_status()
 
-        if server_status_flag == RedisServer.RESET_STATUS or \
-           server_status_flag == None:
+        if server_status_flag == RedisServer.RESET_STATUS or server_status_flag == None:
             self.reset()
 
-        elif server_status_flag == RedisServer.RECONFIGURE_STATUS  or \
-             server_status_flag == RedisServer.INITIALIZING_STATUS or \
-             server_status_flag == RedisServer.STOPPING_STATUS:
+        elif (
+            server_status_flag == RedisServer.RECONFIGURE_STATUS
+            or server_status_flag == RedisServer.INITIALIZING_STATUS
+            or server_status_flag == RedisServer.STOPPING_STATUS
+        ):
 
             self.reconfigure()
         elif server_status_flag == RedisServer.AWAITING_ENV_SPACES_STATUS:
@@ -80,14 +94,20 @@ class Client(object):
         if self.client is not None:
             self.client.disconnect()
         if self.trajectory_finalizer_handler is not None:
-            self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_FLUSH,
-                                                  data=self.agent.ep_rewards if self.agent and len(self.agent.ep_rewards) > 0 else None)
+            self.trajectory_finalizer_handler.put(
+                ClientTrajectoryFinalizer.HEADER_FLUSH,
+                data=self.agent.ep_rewards
+                if self.agent and len(self.agent.ep_rewards) > 0
+                else None,
+            )
             self.trajectory_finalizer_handler.close()
 
         self.configure()
 
     def transmit_env_spaces(self):
-        self.client.transmit_env_spaces(self.policy.input_shape, self.policy.output_shape)
+        self.client.transmit_env_spaces(
+            self.policy.input_shape, self.policy.output_shape
+        )
 
     def configure(self):
         print("CLIENT CONFIGURING")
@@ -99,9 +119,20 @@ class Client(object):
         self.client.connect()
         self.cfg = self.client.get_cfg()
 
-        self.env, self.experience, gradient_builder, policy_gradient_optimizer, value_gradient_optimizer, \
-        self.agent, self.policy, self.strategy_optimizer, adaptive_omega, value_net, \
-        novelty_gradient_optimizer, learner = Configurator.build_vars(self.cfg, existing_env=env)
+        (
+            self.env,
+            self.experience,
+            gradient_builder,
+            policy_gradient_optimizer,
+            value_gradient_optimizer,
+            self.agent,
+            self.policy,
+            self.strategy_optimizer,
+            adaptive_omega,
+            value_net,
+            novelty_gradient_optimizer,
+            learner,
+        ) = Configurator.build_vars(self.cfg, existing_env=env)
 
         self.env.reset()
         self.transmit_env_spaces()
@@ -112,10 +143,15 @@ class Client(object):
             time.sleep(1)
 
         tfh_cfg = self.cfg.copy()
-        tfh_cfg["env_space_shapes"] = (self.policy.input_shape, self.policy.output_shape)
+        tfh_cfg["env_space_shapes"] = (
+            self.policy.input_shape,
+            self.policy.output_shape,
+        )
         self.trajectory_finalizer_handler = MPFProcessHandler()
         self.trajectory_finalizer_handler.setup_process(ClientTrajectoryFinalizer())
-        self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_RESET, tfh_cfg)
+        self.trajectory_finalizer_handler.put(
+            ClientTrajectoryFinalizer.HEADER_RESET, tfh_cfg
+        )
 
         print("Client configuration complete!")
 
@@ -134,8 +170,12 @@ class Client(object):
 
         try:
             if self.trajectory_finalizer_handler is not None:
-                self.trajectory_finalizer_handler.put(ClientTrajectoryFinalizer.HEADER_FLUSH,
-                                                      data=self.agent.ep_rewards if self.agent and len(self.agent.ep_rewards) > 0 else None)
+                self.trajectory_finalizer_handler.put(
+                    ClientTrajectoryFinalizer.HEADER_FLUSH,
+                    data=self.agent.ep_rewards
+                    if self.agent and len(self.agent.ep_rewards) > 0
+                    else None,
+                )
                 self.trajectory_finalizer_handler.close()
         except:
             pass

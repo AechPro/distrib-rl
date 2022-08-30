@@ -56,7 +56,7 @@ class AdaptiveOmega(object):
             self.omega = min(self.omega + self.increase, self.max_omega)
 
     def save(self, path):
-        with open(os.path.join(path, "omega.dat"), 'w') as f:
+        with open(os.path.join(path, "omega.dat"), "w") as f:
             f.write("{}".format(self.omega))
 
     def advance_reward_history(self, reward):

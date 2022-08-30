@@ -2,6 +2,7 @@ from distrib_rl.MPFramework import MPFProcessHandler
 from distrib_rl.Experience import ParallelShuffler
 import time
 
+
 class ParallelExperienceManager(object):
     def __init__(self, cfg):
         self.process_handler = None
@@ -25,7 +26,12 @@ class ParallelExperienceManager(object):
             for data in batches:
                 header, msg = data
                 if header == "misc_data":
-                    self.rew_mean, self.rew_std, ts_collected, self.steps_per_second =  msg
+                    (
+                        self.rew_mean,
+                        self.rew_std,
+                        ts_collected,
+                        self.steps_per_second,
+                    ) = msg
                     self.ts_collected += ts_collected
                 else:
                     new_batches.append(msg)

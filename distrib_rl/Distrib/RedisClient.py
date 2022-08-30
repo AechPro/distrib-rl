@@ -14,9 +14,9 @@ class RedisClient(object):
         self.current_value_epoch = -1
         self.max_queue_size = 0
         self._message_serializer = MessageSerializer()
-    
+
     def connect(self):
-        ip = os.environ.get("REDIS_HOST", default='localhost')
+        ip = os.environ.get("REDIS_HOST", default="localhost")
         port = os.environ.get("REDIS_PORT", default=6379)
         password = os.environ.get("REDIS_PASSWORD", default=None)
 
@@ -28,7 +28,7 @@ class RedisClient(object):
 
         red.lpush(key, packed_data)
         red.ltrim(key, 0, self.max_queue_size)
-    
+
     def set_data(self, key, data):
         if data is None:
             packed = data
@@ -60,7 +60,10 @@ class RedisClient(object):
         packed_results = pipe.execute()[0]
         if packed_results is None:
             return []
-        return [self._message_serializer.unpack(packed_result) for packed_result in packed_results]
+        return [
+            self._message_serializer.unpack(packed_result)
+            for packed_result in packed_results
+        ]
 
     def get_latest_value_params(self):
         red = self.redis
@@ -114,14 +117,19 @@ class RedisClient(object):
             if status is not None:
                 status = status.decode("utf-8")
 
-            print("Waiting for server to start...",status)
+            print("Waiting for server to start...", status)
 
-            if status == RedisServer.RUNNING_STATUS or status == RedisServer.AWAITING_ENV_SPACES_STATUS:
+            if (
+                status == RedisServer.RUNNING_STATUS
+                or status == RedisServer.AWAITING_ENV_SPACES_STATUS
+            ):
                 break
 
             time.sleep(1)
-        
-        cfg = dict(json.loads(self.redis.get(RedisKeys.SERVER_CONFIG_KEY).decode("utf-8")))
+
+        cfg = dict(
+            json.loads(self.redis.get(RedisKeys.SERVER_CONFIG_KEY).decode("utf-8"))
+        )
         self.max_queue_size = cfg["experience_replay"]["max_buffer_size"]
         print("Fetched new config!")
 
@@ -138,10 +146,11 @@ class RedisClient(object):
         networking_cfg = cfg.get("networking", {})
         compression_type = networking_cfg.get("compression", None)
         if compression_type:
-            self._message_serializer = MessageSerializer(compression_type=compression_type)
+            self._message_serializer = MessageSerializer(
+                compression_type=compression_type
+            )
         else:
             self._message_serializer = MessageSerializer()
-
 
     def check_server_status(self):
         status = self.redis.get(RedisKeys.SERVER_CURRENT_STATUS_KEY)
@@ -153,7 +162,6 @@ class RedisClient(object):
     def transmit_env_spaces(self, input_shape, output_shape):
         encoded = self._message_serializer.pack((input_shape, output_shape))
         self.redis.set(RedisKeys.ENV_SPACES_KEY, encoded)
-
 
     def disconnect(self):
         self.redis.close()

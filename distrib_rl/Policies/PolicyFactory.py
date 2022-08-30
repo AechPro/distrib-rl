@@ -1,4 +1,3 @@
-
 def get_from_cfg(cfg, env=None, env_space_shapes=None):
     model_data = {}
     if env is not None:
@@ -10,15 +9,21 @@ def get_from_cfg(cfg, env=None, env_space_shapes=None):
 
     if "value_estimator" in cfg.keys():
         model_data["value_estimator"] = [
-            _get_model_object(cfg["value_estimator"]["type"][0], cfg["value_estimator"]["type"][1]),
+            _get_model_object(
+                cfg["value_estimator"]["type"][0], cfg["value_estimator"]["type"][1]
+            ),
             input_shape,
-            1, cfg["value_estimator"]]
+            1,
+            cfg["value_estimator"],
+        ]
 
     if "policy" in cfg.keys():
         model_data["policy"] = [
             _get_model_object(cfg["policy"]["type"][0], cfg["policy"]["type"][1]),
             input_shape,
-            output_shape, cfg["policy"]]
+            output_shape,
+            cfg["policy"],
+        ]
 
     models = {}
     for key, val in model_data.items():
@@ -45,24 +50,34 @@ def _get_model_object(policy_type, action_type):
     else:
         if at == "discrete":
             from distrib_rl.Policies.FeedForward import DiscreteFF
+
             return DiscreteFF
         elif at == "continuous":
             from distrib_rl.Policies.FeedForward import ContinuousFF
+
             return ContinuousFF
         elif at == "multi_discrete" or at == "multidiscrete":
             from distrib_rl.Policies.FeedForward import MultiDiscreteFF
+
             return MultiDiscreteFF
 
-    print("UNABLE TO LOCATE POLICY IMPLEMENTATION MATCHING TYPES: ",policy_type, action_type)
+    print(
+        "UNABLE TO LOCATE POLICY IMPLEMENTATION MATCHING TYPES: ",
+        policy_type,
+        action_type,
+    )
     raise ModuleNotFoundError
+
 
 def _get_output_shape(env):
     import gym
+
     a = env.action_space
     if type(a) == gym.spaces.Discrete:
         return a.n
     if type(a) == gym.spaces.Box:
         return a.shape
+
 
 def _get_input_shape(env):
     return env.observation_space.shape

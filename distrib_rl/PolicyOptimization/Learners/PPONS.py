@@ -4,7 +4,17 @@ import numpy as np
 
 
 class PPONS(object):
-    def __init__(self, strategy_optimizer, cfg, policy, value_net, policy_optimizer, value_optimizer, gradient_builder, adaptive_omega):
+    def __init__(
+        self,
+        strategy_optimizer,
+        cfg,
+        policy,
+        value_net,
+        policy_optimizer,
+        value_optimizer,
+        gradient_builder,
+        adaptive_omega,
+    ):
         self.cfg = cfg
         self.device = cfg["device"]
         self.strategy_optimizer = strategy_optimizer
@@ -64,7 +74,9 @@ class PPONS(object):
                 log_probs, entropy = policy.get_backprop_data(obs, acts)
                 ratio = torch.exp(log_probs - old_probs)
                 clipped = torch.clamp(ratio, 1.0 - clip_range, 1.0 + clip_range)
-                policy_loss = -torch.min(ratio * advantages, clipped * advantages).mean()
+                policy_loss = -torch.min(
+                    ratio * advantages, clipped * advantages
+                ).mean()
 
                 with torch.no_grad():
                     log_ratio = log_probs - old_probs
@@ -72,7 +84,9 @@ class PPONS(object):
                     kl = kl.mean().detach().cpu().item()
 
                     # From the stable-baselines3 implementation of PPO.
-                    clip = torch.mean((torch.abs(ratio - 1) > clip_range).float()).item()
+                    clip = torch.mean(
+                        (torch.abs(ratio - 1) > clip_range).float()
+                    ).item()
                     clip_fractions.append(clip)
 
                 if len(behaviors) >= 1:
@@ -127,7 +141,7 @@ class PPONS(object):
             "mean_kl": mean_divergence,
             "val_loss": mean_val_loss,
             "clip_fraction": mean_clip,
-            "learning_rate": -1
+            "learning_rate": -1,
         }
 
         return report

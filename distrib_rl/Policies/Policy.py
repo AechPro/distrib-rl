@@ -54,10 +54,17 @@ class Policy(nn.Module):
                     trainable = True
                     break
             if trainable:
-                if i < n_trainable_layers-1:
-                    layer.apply(partial(TorchFunctions.init_weights_orthogonal, gain=gain))
+                if i < n_trainable_layers - 1:
+                    layer.apply(
+                        partial(TorchFunctions.init_weights_orthogonal, gain=gain)
+                    )
                 elif gain != 1:
-                    layer.apply(partial(TorchFunctions.init_weights_orthogonal, gain=self.cfg["action_init_std"]))
+                    layer.apply(
+                        partial(
+                            TorchFunctions.init_weights_orthogonal,
+                            gain=self.cfg["action_init_std"],
+                        )
+                    )
                 i += 1
 
     def get_output(self, obs):
@@ -70,7 +77,13 @@ class Policy(nn.Module):
 
     def get_trainable_flat(self, force_update=False):
         if self.flat is None or force_update:
-            self.flat = torch.nn.utils.parameters_to_vector(self.parameters()).cpu().detach().numpy().astype(np.float32)
+            self.flat = (
+                torch.nn.utils.parameters_to_vector(self.parameters())
+                .cpu()
+                .detach()
+                .numpy()
+                .astype(np.float32)
+            )
             self.num_params = len(self.flat)
         return self.flat
 
@@ -83,7 +96,7 @@ class Policy(nn.Module):
         idx = 0
         for p in self.parameters():
             step = np.prod(p.shape)
-            grad = flat[idx:idx + step]
+            grad = flat[idx : idx + step]
             grad = torch.as_tensor(grad, dtype=torch.float32).view_as(p)
             p.backward(-grad)
             idx += step
@@ -92,7 +105,7 @@ class Policy(nn.Module):
         if not os.path.exists(file_path):
             os.makedirs(file_path)
         flat = self.get_trainable_flat(force_update=True)
-        print("POLICY SAVE FUNCTION",os.path.join(file_path, name))
+        print("POLICY SAVE FUNCTION", os.path.join(file_path, name))
         np.save(os.path.join(file_path, name), flat)
 
     def load(self, file_path, name):

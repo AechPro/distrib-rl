@@ -1,6 +1,6 @@
-
 import operator
 from functools import reduce
+
 
 class ListAdjuster(object):
     def __init__(self):
@@ -41,7 +41,7 @@ class ListAdjuster(object):
         adjusted_value = round(adjusted_value)
         adjusted_value /= 1e5
 
-        #cast adjusted value back to initial type
+        # cast adjusted value back to initial type
         adjusted_value = type(self.original_cfg_value)(adjusted_value)
 
         cfg_entry[self.keys[-1]] = adjusted_value

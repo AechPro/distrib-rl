@@ -1,6 +1,7 @@
 from trueskill import rate_1vs1, Rating
 from distrib_rl.Distrib import RedisClient, RedisKeys
 
+
 class OpponentSelector(object):
     def __init__(self, cfg):
         self.cfg = cfg
@@ -44,7 +45,9 @@ class OpponentSelector(object):
         opponent_num = self.rng.choice(indices, p=probs)
         params = self.known_policies[opponent_num]
 
-        self.client.set_data(RedisKeys.MARL_CURRENT_OPPONENT_KEY, (params, opponent_num))
+        self.client.set_data(
+            RedisKeys.MARL_CURRENT_OPPONENT_KEY, (params, opponent_num)
+        )
 
     def update_ratings(self):
         results = self.client.atomic_pop_all(RedisKeys.MARL_MATCH_RESULTS_KEY)
@@ -56,9 +59,13 @@ class OpponentSelector(object):
                 continue
 
             if victory:
-                self.policy_skill, opponent = rate_1vs1(self.policy_skill, self.player_skills[opponent_num])
+                self.policy_skill, opponent = rate_1vs1(
+                    self.policy_skill, self.player_skills[opponent_num]
+                )
             else:
-                opponent, self.policy_skill = rate_1vs1(self.player_skills[opponent_num], self.policy_skill)
+                opponent, self.policy_skill = rate_1vs1(
+                    self.player_skills[opponent_num], self.policy_skill
+                )
             self.player_skills[opponent_num] = opponent
 
     def submit_policy(self, policy_params):

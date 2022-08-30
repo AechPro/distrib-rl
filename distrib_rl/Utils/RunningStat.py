@@ -48,7 +48,9 @@ class WelfordRunningStat(object):
     def std(self):
         if self.count < 2:
             return self.ones
-        var = np.where(self.running_variance == 0, 1.0, self.running_variance) / (self.count - 1)
+        var = np.where(self.running_variance == 0, 1.0, self.running_variance) / (
+            self.count - 1
+        )
         # var = self.running_variance / (self.count - 1)
 
         return np.sqrt(var)
@@ -63,9 +65,15 @@ class WelfordRunningStat(object):
         mean_delta = other_mean - self.running_mean
         mean_delta_squared = mean_delta * mean_delta
 
-        combined_mean = (self.count * self.running_mean + other_count * other_mean) / count
+        combined_mean = (
+            self.count * self.running_mean + other_count * other_mean
+        ) / count
 
-        combined_variance = self.running_variance + other_var + mean_delta_squared * self.count * other_count / count
+        combined_variance = (
+            self.running_variance
+            + other_var
+            + mean_delta_squared * self.count * other_count / count
+        )
 
         self.running_mean = combined_mean
         self.running_variance = combined_variance

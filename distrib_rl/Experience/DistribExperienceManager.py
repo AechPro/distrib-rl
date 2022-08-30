@@ -1,6 +1,7 @@
 from distrib_rl.Distrib import RedisKeys
 from distrib_rl.Experience import ExperienceReplay
 
+
 class DistribExperienceManager(object):
     def __init__(self, cfg, client=None, server=None):
         self.cfg = cfg
@@ -30,7 +31,19 @@ class DistribExperienceManager(object):
         while True:
             batches = self.server.get_n_timesteps(num_timesteps)
             for batch in batches:
-                actions, log_probs, rewards, obs, dones, future_rewards, values, advantages, pred_rets, ep_rew, noise_idx = batch
+                (
+                    actions,
+                    log_probs,
+                    rewards,
+                    obs,
+                    dones,
+                    future_rewards,
+                    values,
+                    advantages,
+                    pred_rets,
+                    ep_rew,
+                    noise_idx,
+                ) = batch
                 acts += actions
                 probs += log_probs
                 rews += rewards
@@ -45,8 +58,22 @@ class DistribExperienceManager(object):
                 n_collected += len(batch[0])
 
             if len(acts) > 0:
-                exp.register_trajectory((acts, probs, rews, obses, done, frews,
-                                        vals, advs, rets, noise_indices, ep_rews), serialized=True)
+                exp.register_trajectory(
+                    (
+                        acts,
+                        probs,
+                        rews,
+                        obses,
+                        done,
+                        frews,
+                        vals,
+                        advs,
+                        rets,
+                        noise_indices,
+                        ep_rews,
+                    ),
+                    serialized=True,
+                )
                 break
 
             if exp.num_timesteps > batch_size:

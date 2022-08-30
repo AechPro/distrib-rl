@@ -1,4 +1,6 @@
 import os
+
+
 class Adjuster(object):
     def __init__(self):
         self.adjustments = []
@@ -26,7 +28,7 @@ class Adjuster(object):
         name = ""
         if self.adjustments is not None:
             for adjustment in self.adjustments:
-                #name = "{}_{}".format(name, adjustment.get_name())
+                # name = "{}_{}".format(name, adjustment.get_name())
                 name = os.path.join(name, adjustment.get_name())
         if name[0] == "_":
             name = name[1:]

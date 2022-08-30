@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from distrib_rl.Policies.FeedForward import ContinuousFF
 
+
 class StrategyPoint(object):
     def __init__(self, flat):
         self.flat = flat
@@ -11,7 +12,9 @@ class StrategyPoint(object):
     def compute_strategy(self, policy, frames):
         orig = policy.get_trainable_flat()
         policy.set_trainable_flat(self.flat)
-        self.strategy = policy.get_output(frames).cpu().flatten().numpy().astype(np.float32)
+        self.strategy = (
+            policy.get_output(frames).cpu().flatten().numpy().astype(np.float32)
+        )
         policy.set_trainable_flat(orig)
 
     def cleanup(self):

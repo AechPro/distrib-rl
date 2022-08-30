@@ -1,6 +1,7 @@
 from distrib_rl.Experiments.ConfigAdjusters import Adjuster
 from distrib_rl.Experiments.ConfigAdjusters import Adjustment
 
+
 class BasicAdjuster(Adjuster):
     def __init__(self):
         super().__init__()

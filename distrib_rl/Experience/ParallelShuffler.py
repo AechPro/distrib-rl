@@ -30,10 +30,14 @@ class ParallelShuffler(MPFProcess):
 
         if "updates_per_timestep" in self.cfg["policy_optimizer"]:
 
-            self.ts_per_update = 1 / self.cfg["policy_optimizer"]["updates_per_timestep"]
+            self.ts_per_update = (
+                1 / self.cfg["policy_optimizer"]["updates_per_timestep"]
+            )
 
             if self.ts_per_update > self.cfg["policy_optimizer"]["batch_size"]:
-                raise Exception("1 / updates_per_timestep must be smaller than batch_size")
+                raise Exception(
+                    "1 / updates_per_timestep must be smaller than batch_size"
+                )
 
         elif "timesteps_per_update" in self.cfg["policy_optimizer"]:
 
@@ -43,7 +47,12 @@ class ParallelShuffler(MPFProcess):
                 raise Exception("timesteps_per_update must be smaller than batch_size")
 
         else:
-            self.ts_per_update = int(round(self.cfg["policy_optimizer"]["new_returns_proportion"]*self.cfg["experience_replay"]["max_buffer_size"]))
+            self.ts_per_update = int(
+                round(
+                    self.cfg["policy_optimizer"]["new_returns_proportion"]
+                    * self.cfg["experience_replay"]["max_buffer_size"]
+                )
+            )
         self.batch_size = self.cfg["policy_optimizer"]["batch_size"]
 
     def update(self, header, data):
@@ -62,14 +71,20 @@ class ParallelShuffler(MPFProcess):
             publisher.publish(header="experience_batch", data=batch)
 
         buffer = []
-        ts_collected, fps = self.exp_manager.get_timesteps_as_batches(self.ts_per_update, self.batch_size)
+        ts_collected, fps = self.exp_manager.get_timesteps_as_batches(
+            self.ts_per_update, self.batch_size
+        )
 
-        for batch in self.exp_manager.experience.get_all_batches_shuffled(self.batch_size):
+        for batch in self.exp_manager.experience.get_all_batches_shuffled(
+            self.batch_size
+        ):
             buffer.append(batch)
 
         rew_mean = self.exp_manager.experience.reward_stats.mean[0]
         rew_std = self.exp_manager.experience.reward_stats.std[0]
-        publisher.publish(header="misc_data", data=(rew_mean, rew_std, ts_collected, fps))
+        publisher.publish(
+            header="misc_data", data=(rew_mean, rew_std, ts_collected, fps)
+        )
         self.buffer = buffer
 
     def cleanup(self):

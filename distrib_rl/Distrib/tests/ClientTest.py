@@ -6,6 +6,7 @@ DATA_SIZE = 10000
 NUM_PUSHES = 1000
 PUSH_DELAY = 0
 
+
 def run_test():
     client = RedisClient()
     client.connect()
@@ -17,6 +18,7 @@ def run_test():
             time.sleep(PUSH_DELAY)
 
     client.disconnect()
+
 
 if __name__ == "__main__":
     run_test()

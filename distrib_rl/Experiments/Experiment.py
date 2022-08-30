@@ -3,6 +3,7 @@ from distrib_rl.Experiments.ConfigAdjusters import AdjusterFactory
 import os
 import numpy as np
 
+
 class Experiment(object):
     def __init__(self, experiment_json, optimization_manager):
         self.experiment_json = experiment_json
@@ -25,14 +26,19 @@ class Experiment(object):
         self.step_num = 0
 
     def init(self):
-        self.cfg = ConfigLoader.load_config(file_name=self.experiment_json["config_file"])
+        self.cfg = ConfigLoader.load_config(
+            file_name=self.experiment_json["config_file"]
+        )
 
-        self.config_adjusters = AdjusterFactory. \
-            build_adjusters_for_experiment(self.experiment_json["config_adjustments"], self.cfg)
+        self.config_adjusters = AdjusterFactory.build_adjusters_for_experiment(
+            self.experiment_json["config_adjustments"], self.cfg
+        )
 
         self.config_adjusters[self.current_adjuster_index].reset_config(self.cfg)
         self.config_adjusters[self.current_adjuster_index].adjust_config(self.cfg)
-        self.adjustment_dir = self.config_adjusters[self.current_adjuster_index].get_name()
+        self.adjustment_dir = self.config_adjusters[
+            self.current_adjuster_index
+        ].get_name()
         self.start_trial()
 
     def step(self):
@@ -81,7 +87,9 @@ class Experiment(object):
                 self.optimization_manager.reset()
                 return
 
-            elif self.config_adjusters[self.current_adjuster_index].reset_per_increment():
+            elif self.config_adjusters[
+                self.current_adjuster_index
+            ].reset_per_increment():
                 self.optimization_manager.reset()
 
             else:
@@ -94,11 +102,18 @@ class Experiment(object):
         self.start_trial()
 
     def start_trial(self):
-        current_trial_dir = os.path.join(self.base_dir, self.experiment_json["experiment_name"],
-                                                 self.adjustment_dir, str(self.current_trial))
+        current_trial_dir = os.path.join(
+            self.base_dir,
+            self.experiment_json["experiment_name"],
+            self.adjustment_dir,
+            str(self.current_trial),
+        )
 
-        experiment_name = "{}-{}-{}".format(self.experiment_json["experiment_name"],
-                                            self.adjustment_dir, self.current_trial)
+        experiment_name = "{}-{}-{}".format(
+            self.experiment_json["experiment_name"],
+            self.adjustment_dir,
+            self.current_trial,
+        )
 
         self.cfg["experiment_name"] = experiment_name
 

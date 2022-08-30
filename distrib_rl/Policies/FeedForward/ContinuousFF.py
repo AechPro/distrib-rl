@@ -16,7 +16,6 @@ class ContinuousFF(Policy):
         self.entropy_min = 0
         self.entropy_max = 1
 
-
     @functools.lru_cache()
     def logpdf(self, x, mean, std):
         msq = mean * mean
@@ -29,7 +28,6 @@ class ContinuousFF(Policy):
         term4 = torch.log(1 / torch.sqrt(2 * np.pi * ssq))
 
         return term1 + term2 + term3 + term4
-
 
     def get_action(self, obs, summed_probs=True, deterministic=False):
         mean, std = self.get_output(obs)
@@ -67,22 +65,34 @@ class ContinuousFF(Policy):
             log_probs = prob.to(self.device)
 
         entropy = distribution.entropy()
-        entropy = RLMath.minmax_norm(entropy.sum(dim=1), self.entropy_min, self.entropy_max)
+        entropy = RLMath.minmax_norm(
+            entropy.sum(dim=1), self.entropy_min, self.entropy_max
+        )
         entropy = entropy.mean().to(self.device)
 
         return log_probs, entropy
 
     def build_model(self, model_json, input_shape, output_shape):
-        self.model = TorchModelBuilder.build_from_json(model_json, input_shape, output_shape, channels_first=True)
+        self.model = TorchModelBuilder.build_from_json(
+            model_json, input_shape, output_shape, channels_first=True
+        )
 
         with torch.no_grad():
             min_sigma = torch.ones(output_shape) * 1e-1
             max_sigma = torch.ones(output_shape)
             self.entropy_min = RLMath.compute_torch_normal_entropy(min_sigma)
             self.entropy_max = RLMath.compute_torch_normal_entropy(max_sigma)
-            print("CONFIGURING CONTINUOUS POLICY TO SHIFT ENTROPY VALUES BETWEEN 0 AND 1")
-            print("OUTPUT SHAPE:", output_shape, "ENTROPY MIN:", self.entropy_min, "ENTROPY MAX:", self.entropy_max)
-
+            print(
+                "CONFIGURING CONTINUOUS POLICY TO SHIFT ENTROPY VALUES BETWEEN 0 AND 1"
+            )
+            print(
+                "OUTPUT SHAPE:",
+                output_shape,
+                "ENTROPY MIN:",
+                self.entropy_min,
+                "ENTROPY MAX:",
+                self.entropy_max,
+            )
 
         self.model.eval()
         self.input_shape = input_shape

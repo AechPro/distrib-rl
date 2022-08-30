@@ -1,6 +1,7 @@
 from distrib_rl.Experiments import Experiment, ExperimentLoader
 import os
 
+
 class ExperimentManager(object):
     def __init__(self, optimizer):
         self.optimization_manager = optimizer

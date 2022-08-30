@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger("MPFLogger")
 handler = logging.StreamHandler()
 handler.setLevel(logging.DEBUG)

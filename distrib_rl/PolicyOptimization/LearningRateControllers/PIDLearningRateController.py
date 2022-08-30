@@ -1,5 +1,6 @@
 from weakref import ref
 
+
 class PIDLearningRateController(object):
     def __init__(self, cfg):
         self.clip_target = cfg["lr_adjuster"].get("clip_target", None)
@@ -12,8 +13,10 @@ class PIDLearningRateController(object):
         self.state = {}
 
         if self.lr_kp is None and self.clip_target is not None:
-            raise ValueError("Required PIDLearningRateController parameter 'Kp' is not specified. " +
-                "Either specify it or leave 'clip_target' unspecified for no learning rate control.")
+            raise ValueError(
+                "Required PIDLearningRateController parameter 'Kp' is not specified. "
+                + "Either specify it or leave 'clip_target' unspecified for no learning rate control."
+            )
 
     def adjust(self, optimizer, mean_clip):
         if self.clip_target is None:
@@ -60,5 +63,7 @@ class PIDLearningRateController(object):
                     n += 1
             return mean_lr / n
         else:
-            optimizer.step_size = min(max(optimizer.step_size + adjustment, min_lr), max_lr)
+            optimizer.step_size = min(
+                max(optimizer.step_size + adjustment, min_lr), max_lr
+            )
             return optimizer.step_size

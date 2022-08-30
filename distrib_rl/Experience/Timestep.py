@@ -1,4 +1,3 @@
-
 class Timestep(object):
     def __init__(self):
         self.reward = None

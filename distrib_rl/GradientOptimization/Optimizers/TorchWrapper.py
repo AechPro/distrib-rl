@@ -27,7 +27,9 @@ class TorchWrapper(GradientOptimizer):
             else:
                 grad_slice = gradient[step:next_step]
 
-            grad_tensor = torch.as_tensor(grad_slice, dtype=torch.float32).view_as(p).to(device)
+            grad_tensor = (
+                torch.as_tensor(grad_slice, dtype=torch.float32).view_as(p).to(device)
+            )
 
             if p.grad is not None:
                 p.grad.zero_()
@@ -51,4 +53,3 @@ class TorchWrapper(GradientOptimizer):
 
     def load(self, file_path, name):
         self.torch_optimizer.load_state_dict(torch.load(os.path.join(file_path, name)))
-

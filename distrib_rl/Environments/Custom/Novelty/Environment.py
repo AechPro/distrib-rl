@@ -17,15 +17,18 @@ class Environment(gym.Env):
         self.current_node = None
         self.episode_length = 200
         self.current_step = 0
-        self.current_node = self.map.get_node(self.map.width*self.map.node_radius//2, self.map.height*self.map.node_radius//2)
+        self.current_node = self.map.get_node(
+            self.map.width * self.map.node_radius // 2,
+            self.map.height * self.map.node_radius // 2,
+        )
         self.middle_x = self.current_node.x
         self.MAX_X = 1918
         self.MAX_Y = 1071
         self.action_record = []
 
         self.map_scale = 5
-        #self.goal_pos = [31*self.map_scale,20*self.map_scale]
-        self.goal_pos = [self.MAX_X, self.MAX_Y//2]
+        # self.goal_pos = [31*self.map_scale,20*self.map_scale]
+        self.goal_pos = [self.MAX_X, self.MAX_Y // 2]
 
         self.observation_space = gym.spaces.Box(0, 1, (2,))
 
@@ -52,7 +55,10 @@ class Environment(gym.Env):
 
         if self.opt_id is not None and len(self.action_record) > 0:
             self.save(self.opt_id)
-        self.current_node = self.map.get_node(self.map.width*self.map.node_radius//2, self.map.height*self.map.node_radius//2)
+        self.current_node = self.map.get_node(
+            self.map.width * self.map.node_radius // 2,
+            self.map.height * self.map.node_radius // 2,
+        )
         self.current_step = 0
         self.action_record = []
 
@@ -62,19 +68,21 @@ class Environment(gym.Env):
         return self.form_obs()
 
     def form_obs(self):
-        obs = [self.current_node.x/self.MAX_X, self.current_node.y/self.MAX_Y]
+        obs = [self.current_node.x / self.MAX_X, self.current_node.y / self.MAX_Y]
         return np.asarray(obs)
 
-    def save(self, filename, folder_path="H:/PyCharm/custom_novelty_playbacks/in_progress"):
+    def save(
+        self, filename, folder_path="H:/PyCharm/custom_novelty_playbacks/in_progress"
+    ):
         if len(self.action_record) != self.episode_length + 1:
             return
 
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        with open("{}/{}.txt".format(folder_path, filename), 'a') as f:
+        with open("{}/{}.txt".format(folder_path, filename), "a") as f:
             string = ""
-            for arg in self.action_record[:self.episode_length]:
+            for arg in self.action_record[: self.episode_length]:
                 string = "{} {}".format(string, arg)
             f.write(string)
             f.write("\n")
@@ -82,5 +90,5 @@ class Environment(gym.Env):
     def close(self):
         pass
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         pass

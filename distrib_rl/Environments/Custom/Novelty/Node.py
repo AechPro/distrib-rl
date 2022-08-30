@@ -1,5 +1,5 @@
 class Node(object):
-    def __init__(self,x,y,id,walkable):
+    def __init__(self, x, y, id, walkable):
         self.x = x
         self.y = y
         self.id = id

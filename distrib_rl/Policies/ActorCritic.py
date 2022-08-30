@@ -8,11 +8,14 @@ class CombinedModel(nn.Module):
         self.actor = policy
         self.critic = value_net
 
+
 class ActorCritic(Policy):
     def __init__(self, policy, value_net, cfg):
         super().__init__(cfg)
         self.model = CombinedModel(policy, value_net)
-        self.num_params = len(policy.get_trainable_flat(force_update=True)) + len(value_net.get_trainable_flat(force_update=True))
+        self.num_params = len(policy.get_trainable_flat(force_update=True)) + len(
+            value_net.get_trainable_flat(force_update=True)
+        )
 
     def get_backprop_data(self, obs, acts):
         pass
@@ -27,6 +30,3 @@ class ActorCritic(Policy):
         self.model.actor.to(device)
         self.model.critic.to(device)
         self.to(device)
-
-
-

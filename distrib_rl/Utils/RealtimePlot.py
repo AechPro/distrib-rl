@@ -1,6 +1,7 @@
 import threading
 import matplotlib.pyplot as plt
 
+
 class RealtimePlot(threading.Thread):
     def __init__(self, interval):
         super().__init__()
@@ -46,9 +47,7 @@ class RealtimePlot(threading.Thread):
                     _, _, bar_container = ax.hist(pred, bins=100, lw=1, alpha=0.5)
                     fig.canvas.draw()
 
-
             plt.pause(self.interval)
-
 
     def stop(self):
         self.running = False

@@ -2,6 +2,7 @@ from distrib_rl.Experiments.ConfigAdjusters import Adjuster, NullAdjuster
 from distrib_rl.Experiments.ConfigAdjusters import Adjustment
 from distrib_rl.Experiments.ConfigAdjusters.ListAdjuster import ListAdjuster
 
+
 class ParallelAdjuster(Adjuster):
     def __init__(self):
         super().__init__()

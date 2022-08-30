@@ -35,8 +35,12 @@ class StrategyOptimizer(object):
         self.current_step += 1
 
     def set_from_server(self, strategy_frames, strategy_history):
-        self.beh_tensor = torch.as_tensor(strategy_history, dtype=torch.float32).to(self.device)
-        self.frames = torch.as_tensor(strategy_frames, dtype=torch.float32).to(self.device)
+        self.beh_tensor = torch.as_tensor(strategy_history, dtype=torch.float32).to(
+            self.device
+        )
+        self.frames = torch.as_tensor(strategy_frames, dtype=torch.float32).to(
+            self.device
+        )
 
     @torch.no_grad()
     def add_current_policy(self):
@@ -44,7 +48,9 @@ class StrategyOptimizer(object):
         self.strategy_history.append(point)
 
         while len(self.strategy_history) > self.max_history_size:
-            point = self.strategy_history.pop(np.random.randint(0, len(self.strategy_history)-1))
+            point = self.strategy_history.pop(
+                np.random.randint(0, len(self.strategy_history) - 1)
+            )
             point.cleanup()
             del point
 
@@ -55,7 +61,7 @@ class StrategyOptimizer(object):
 
         behs = []
         for point in self.strategy_history:
-            point.compute_strategy(policy,frames)
+            point.compute_strategy(policy, frames)
             behs.append(point.strategy)
 
         self.beh_tensor = torch.as_tensor(behs, dtype=torch.float32).to(self.device)

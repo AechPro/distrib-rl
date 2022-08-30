@@ -7,6 +7,7 @@
         It should consist of a header to be used for data identification, and the raw data.
 """
 
+
 class MPFDataPacket(object):
     def __init__(self, header, data):
         self._header = header

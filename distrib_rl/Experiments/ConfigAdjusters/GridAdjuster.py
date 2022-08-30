@@ -1,6 +1,7 @@
 from distrib_rl.Experiments.ConfigAdjusters import Adjuster
 from distrib_rl.Experiments.ConfigAdjusters import Adjustment
 
+
 class GridAdjuster(Adjuster):
     def __init__(self):
         super().__init__()
@@ -34,7 +35,7 @@ class GridAdjuster(Adjuster):
             idx += 1
 
             if idx >= len(self.adjustments):
-                idx=0
+                idx = 0
                 break
 
         if adj[idx].reset_per_increment:

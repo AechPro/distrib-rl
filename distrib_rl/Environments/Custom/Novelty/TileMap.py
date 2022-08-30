@@ -30,7 +30,7 @@ class TileMap(object):
         id = 0
         delim = " "
 
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             for line in f:
                 row = []
                 tiles = line.split(delim)

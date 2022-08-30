@@ -7,11 +7,11 @@ import os
 
 
 class RedisServer(object):
-    INITIALIZING_STATUS        = "REDIS_SERVER_INITIALIZING_STATUS"
-    RUNNING_STATUS             = "REDIS_SERVER_RUNNING_STATUS"
-    STOPPING_STATUS            = "REDIS_SERVER_STOPPING_STATUS"
-    RESET_STATUS               = "REDIS_SERVER_RESET_STATUS"
-    RECONFIGURE_STATUS         = "REDIS_SERVER_RECONFIGURE_STATUS"
+    INITIALIZING_STATUS = "REDIS_SERVER_INITIALIZING_STATUS"
+    RUNNING_STATUS = "REDIS_SERVER_RUNNING_STATUS"
+    STOPPING_STATUS = "REDIS_SERVER_STOPPING_STATUS"
+    RESET_STATUS = "REDIS_SERVER_RESET_STATUS"
+    RECONFIGURE_STATUS = "REDIS_SERVER_RECONFIGURE_STATUS"
     AWAITING_ENV_SPACES_STATUS = "REDIS_SERVER_AWAITING_ENV_SPACES_STATUS"
 
     def __init__(self, max_queue_size):
@@ -30,7 +30,7 @@ class RedisServer(object):
         self.max_policy_age = float("inf")
 
     def connect(self, clear_existing=False, new_server_instance=True):
-        ip = os.environ.get("REDIS_HOST", default='localhost')
+        ip = os.environ.get("REDIS_HOST", default="localhost")
         port = os.environ.get("REDIS_PORT", default=6379)
         password = os.environ.get("REDIS_PASSWORD", default=None)
         self.redis = Redis(host=ip, port=port, password=password)
@@ -38,7 +38,9 @@ class RedisServer(object):
             self.redis.flushall()
 
         if new_server_instance:
-            self.redis.set(RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.INITIALIZING_STATUS)
+            self.redis.set(
+                RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.INITIALIZING_STATUS
+            )
             self.redis.set(RedisKeys.NEW_DATA_AMOUNT_KEY, 0)
 
     def get_n_timesteps(self, n):
@@ -50,7 +52,6 @@ class RedisServer(object):
             while self.available_timesteps < n - n_collected:
                 self._update_buffer()
                 time.sleep(0.01)
-
 
             ret = self.internal_buffer.pop(-1)
             trajectory, num_timesteps, policy_epoch = ret
@@ -93,7 +94,14 @@ class RedisServer(object):
         # https://stackoverflow.com/a/952952
         return [reward for reward_list in reward_lists for reward in reward_list]
 
-    def push_update(self, policy_params, val_params, strategy_frames, strategy_history, current_epoch):
+    def push_update(
+        self,
+        policy_params,
+        val_params,
+        strategy_frames,
+        strategy_history,
+        current_epoch,
+    ):
         red = self.redis
 
         self.current_epoch = current_epoch
@@ -128,7 +136,9 @@ class RedisServer(object):
         networking_cfg = cfg.get("networking", {})
         compression_type = networking_cfg.get("compression", None)
         if compression_type:
-            self._message_serializer = MessageSerializer(compression_type=compression_type)
+            self._message_serializer = MessageSerializer(
+                compression_type=compression_type
+            )
         else:
             self._message_serializer = MessageSerializer()
 
@@ -145,7 +155,9 @@ class RedisServer(object):
         pipe.execute()
 
     def get_env_spaces(self):
-        self.redis.set(RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.AWAITING_ENV_SPACES_STATUS)
+        self.redis.set(
+            RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.AWAITING_ENV_SPACES_STATUS
+        )
         in_space, out_space = None, None
 
         while in_space is None or out_space is None:
@@ -164,7 +176,9 @@ class RedisServer(object):
             for serialized_trajectory, policy_epoch in trajectories:
                 n_timesteps = len(serialized_trajectory[0])
                 collected_timesteps += n_timesteps
-                self.internal_buffer.append((serialized_trajectory, n_timesteps, policy_epoch))
+                self.internal_buffer.append(
+                    (serialized_trajectory, n_timesteps, policy_epoch)
+                )
 
         self.available_timesteps += collected_timesteps
 
@@ -192,13 +206,18 @@ class RedisServer(object):
         packed_results = pipe.execute()[0]
         if packed_results is None:
             return []
-        return [self._message_serializer.unpack(packed_result) for packed_result in packed_results]
+        return [
+            self._message_serializer.unpack(packed_result)
+            for packed_result in packed_results
+        ]
 
     def disconnect(self):
         if self.redis is not None:
             self.redis.flushall()
             print("\nATTEMPTING TO SET REDIS TO STOPPING STATUS")
-            self.redis.set(RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.STOPPING_STATUS)
+            self.redis.set(
+                RedisKeys.SERVER_CURRENT_STATUS_KEY, RedisServer.STOPPING_STATUS
+            )
             self.redis.close()
 
         del self.internal_buffer

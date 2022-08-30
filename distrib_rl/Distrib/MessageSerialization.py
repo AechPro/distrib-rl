@@ -1,12 +1,14 @@
 import msgpack
 import lz4.frame
 from msgpack_numpy import patch
+
 patch()
 
 MIN_SIZE_TO_COMPRESS = 1024
 
 LZ4 = True
 NONE = False
+
 
 class NullMessageCompressor(object):
     compression_type = "NONE"
@@ -19,6 +21,7 @@ class NullMessageCompressor(object):
 
     def decompress(data):
         return data
+
 
 class LZ4MessageCompressor(object):
     compression_type = "LZ4"
@@ -36,10 +39,14 @@ class LZ4MessageCompressor(object):
 class MessageSerializer(object):
     _compressors = {
         NullMessageCompressor.compression_type: NullMessageCompressor,
-        LZ4MessageCompressor.compression_type: LZ4MessageCompressor
+        LZ4MessageCompressor.compression_type: LZ4MessageCompressor,
     }
 
-    def __init__(self, compression_type=LZ4MessageCompressor.compression_type, min_size_to_compress = MIN_SIZE_TO_COMPRESS):
+    def __init__(
+        self,
+        compression_type=LZ4MessageCompressor.compression_type,
+        min_size_to_compress=MIN_SIZE_TO_COMPRESS,
+    ):
         super()
         self._compression_type = compression_type.upper()
         self._min_size_to_compress = min_size_to_compress
@@ -63,6 +70,7 @@ class MessageSerializer(object):
             data = MessageSerializer._compressors[compression_type].decompress(data)
             return msgpack.unpackb(data)
         except KeyError:
-            raise ValueError(f"Received message with unknown compression type '{compression_type}'."
-                             f" Supported types are {','.join(ct for ct in MessageSerializer._compressors.keys)}")
-
+            raise ValueError(
+                f"Received message with unknown compression type '{compression_type}'."
+                f" Supported types are {','.join(ct for ct in MessageSerializer._compressors.keys)}"
+            )
