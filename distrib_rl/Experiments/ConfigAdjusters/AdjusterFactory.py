@@ -1,4 +1,5 @@
 from .GridAdjuster import GridAdjuster
+from .ListAdjuster import ListAdjuster
 from .BasicAdjuster import BasicAdjuster
 from .ParallelAdjuster import ParallelAdjuster
 from .ListAdjuster import ListAdjuster
@@ -24,7 +25,7 @@ def build_adjuster(adjuster_type, adjustment_json, cfg):
     elif "adjustment_" in a_t:
         adjuster = BasicAdjuster()
     elif "list_" in a_t:
-        adjuster = BasicAdjuster()
+        adjuster = ListAdjuster()
 
     if adjuster is not None:
         adjuster.init(adjustment_json, cfg)
