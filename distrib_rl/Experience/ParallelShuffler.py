@@ -35,6 +35,13 @@ class ParallelShuffler(MPFProcess):
             if self.ts_per_update > self.cfg["policy_optimizer"]["batch_size"]:
                 raise Exception("1 / updates_per_timestep must be smaller than batch_size")
 
+        elif "timesteps_per_update" in self.cfg["policy_optimizer"]:
+
+            self.ts_per_update = self.cfg["policy_optimizer"]["timesteps_per_update"]
+
+            if self.ts_per_update > self.cfg["policy_optimizer"]["batch_size"]:
+                raise Exception("timesteps_per_update must be smaller than batch_size")
+
         else:
             self.ts_per_update = int(round(self.cfg["policy_optimizer"]["new_returns_proportion"]*self.cfg["experience_replay"]["max_buffer_size"]))
         self.batch_size = self.cfg["policy_optimizer"]["batch_size"]

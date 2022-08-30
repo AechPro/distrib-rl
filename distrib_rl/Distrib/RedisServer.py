@@ -18,6 +18,7 @@ class RedisServer(object):
         self.redis = None
         self.max_queue_size = max_queue_size
         self.internal_buffer = []
+        self.available_timesteps = 0
 
         self.last_sps_measure = time.time()
         self.accumulated_sps = 0
@@ -46,7 +47,7 @@ class RedisServer(object):
         returns = []
 
         while n_collected < n:
-            while len(self.internal_buffer) < n:
+            while self.available_timesteps < n - n_collected:
                 self._update_buffer()
                 time.sleep(0.01)
 
@@ -58,6 +59,7 @@ class RedisServer(object):
                 returns.append(trajectory)
                 n_collected += num_timesteps
 
+        self.available_timesteps -= n_collected
         return returns
 
     def get_up_to_n_timesteps(self, n):
@@ -76,6 +78,7 @@ class RedisServer(object):
                 returns.append(trajectory)
                 n_collected += num_timesteps
 
+        self.available_timesteps -= n_collected
         return returns
 
     def get_policy_rewards(self):
@@ -162,6 +165,8 @@ class RedisServer(object):
                 n_timesteps = len(serialized_trajectory[0])
                 collected_timesteps += n_timesteps
                 self.internal_buffer.append((serialized_trajectory, n_timesteps, policy_epoch))
+
+        self.available_timesteps += collected_timesteps
 
         self._update_sps(collected_timesteps)
         self._trim_buffer()
