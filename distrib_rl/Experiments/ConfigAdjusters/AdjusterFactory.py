@@ -1,4 +1,8 @@
-from distrib_rl.Experiments.ConfigAdjusters import GridAdjuster, BasicAdjuster, ParallelAdjuster
+from .GridAdjuster import GridAdjuster
+from .ListAdjuster import ListAdjuster
+from .BasicAdjuster import BasicAdjuster
+from .ParallelAdjuster import ParallelAdjuster
+from .ListAdjuster import ListAdjuster
 
 def build_adjusters_for_experiment(adjustments_json, cfg):
     adjusters = []
@@ -20,6 +24,8 @@ def build_adjuster(adjuster_type, adjustment_json, cfg):
         adjuster = ParallelAdjuster()
     elif "adjustment_" in a_t:
         adjuster = BasicAdjuster()
+    elif "list_" in a_t:
+        adjuster = ListAdjuster()
 
     if adjuster is not None:
         adjuster.init(adjustment_json, cfg)

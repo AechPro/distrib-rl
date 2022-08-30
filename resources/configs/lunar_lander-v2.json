@@ -1,5 +1,5 @@
 {
-  "device": "cuda:0",
+  "device": "cpu",
   "seed": 123,
   "log_to_wandb": true,
   "env_id": "LunarLander-v2",
@@ -22,28 +22,21 @@
       {
         "type" : "ff",
         "num_nodes" : 128,
-        "activation_function" : "relu",
+        "activation_function" : "selu",
         "extra" : null
       },
       "ff2":
       {
         "type" : "ff",
         "num_nodes" : 128,
-        "activation_function" : "relu",
+        "activation_function" : "selu",
         "extra" : null
       },
       "ff3":
       {
         "type" : "ff",
         "num_nodes" : 128,
-        "activation_function" : "relu",
-        "extra" : null
-      },
-      "ff4":
-      {
-        "type" : "ff",
-        "num_nodes" : 128,
-        "activation_function" : "relu",
+        "activation_function" : "selu",
         "extra" : null
       },
       "output" :
@@ -72,14 +65,14 @@
         "type": "ff",
         "extra": null,
         "num_nodes": 64,
-        "activation_function": "tanh"
+        "activation_function": "selu"
       },
       "ff2":
       {
         "type": "ff",
         "extra": null,
         "num_nodes": 64,
-        "activation_function": "tanh"
+        "activation_function": "selu"
       },
 
       "output":
@@ -95,34 +88,32 @@
   "policy_gradient_optimizer":
   {
     "type": "dsgd",
-    "step_size":  0.0015
+    "step_size": 5e-4
   },
 
+  "value_gradient_optimizer":
+  {
+    "type": "dsgd",
+    "step_size": 5e-4
+  },
+
+  // not used at the moment
   "novelty_gradient_optimizer":
   {
     "type": "dsgd",
     "step_size": 3e-4
   },
 
-  "value_gradient_optimizer":
-  {
-    "type": "torch rmsprop",
-    "lr": 1e-4
-  },
-
   "policy_optimizer":
   {
     "gamma": 0.99,
     "max_kl": 1.0,
-    "n_epochs": 10,
-    "batch_size": 500,
+    "batch_size": 10,
     "clip_range": 0.2,
     "gae_lambda": 0.95,
-    "entropy_coef": 0.005,
-    "eps_per_eval": 5,
-    "max_timesteps": 1e6,
-    "new_returns_proportion": 0.1,
-    "value_updates_per_batch": 10
+    "entropy_coef": 0.01,
+    "max_timesteps": 1e5,
+    "new_returns_proportion": 0.1
   },
 
   "adaptive_omega":
@@ -136,7 +127,7 @@
 
   "experience_replay":
   {
-    "max_buffer_size": 100000
+    "max_buffer_size": 1000
   },
 
   "strategy":

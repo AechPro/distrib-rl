@@ -8,8 +8,6 @@ class PPONS(object):
         self.cfg = cfg
         self.device = cfg["device"]
         self.strategy_optimizer = strategy_optimizer
-        # self.optimizer = optimizer
-        # self.actor_critic = actor_critic
         self.policy = policy
         self.policy_optimizer = policy_optimizer
         self.value_net = value_net
@@ -19,6 +17,7 @@ class PPONS(object):
         self.value_loss_fn = torch.nn.MSELoss()
 
         self.n_epochs = 0
+        self.cumulative_model_updates = 0
         self.burn_in = 0
 
     def learn(self, exp):
@@ -117,11 +116,13 @@ class PPONS(object):
         mean_clip = np.mean(clip_fractions)
 
         self.n_epochs += 1
+        self.cumulative_model_updates += n_updates
 
         report = {
             "batch_time": (time.time() - t1) / n_iterations,
             "n_batches": n_iterations,
             "n_updates": n_updates,
+            "cumulative_model_updates": self.cumulative_model_updates,
             "mean_entropy": mean_entropy,
             "mean_kl": mean_divergence,
             "val_loss": mean_val_loss,

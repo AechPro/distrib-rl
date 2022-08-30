@@ -23,6 +23,7 @@ class DistribPPO(object):
         self.is_torch_optimizer = "torch" in cfg["policy_gradient_optimizer"]["type"]
 
         self.n_epochs = 0
+        self.cumulative_model_updates = 0
         self.burn_in = 0
 
     def learn(self, exp):
@@ -109,10 +110,12 @@ class DistribPPO(object):
         lr_report = self.adjust_learning_rate(mean_clip)
 
         self.n_epochs += 1
+        self.cumulative_model_updates += n_updates
         report = {
                  "batch_time": (time.time() - t1) / n_iterations,
                  "n_batches" : n_iterations,
                  "n_updates":n_updates,
+                 "cumulative_model_updates":self.cumulative_model_updates,
                  "mean_entropy":mean_entropy,
                  "mean_kl":mean_divergence,
                  "val_loss":mean_val_loss,
