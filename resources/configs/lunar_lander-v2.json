@@ -127,8 +127,7 @@
 
   "experience_replay":
   {
-    "max_buffer_size": 1000,
-    "buffer_size_coeff": 100
+    "max_buffer_size": 1000
   },
 
   "strategy":
