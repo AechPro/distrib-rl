@@ -1,4 +1,4 @@
-from distrib_rl.Experiments.ConfigAdjusters import Adjuster
+from distrib_rl.Experiments.ConfigAdjusters import Adjuster, NullAdjuster
 from distrib_rl.Experiments.ConfigAdjusters import Adjustment
 from distrib_rl.Experiments.ConfigAdjusters.ListAdjuster import ListAdjuster
 
@@ -10,6 +10,10 @@ class ParallelAdjuster(Adjuster):
         for key, item in adjustments_json.items():
             if "list_" in key:
                 adjustment = ListAdjuster()
+                adjustment.init(item, cfg)
+                self.adjustments.append(adjustment)
+            elif "null_" in key:
+                adjustment = NullAdjuster()
                 adjustment.init(item, cfg)
                 self.adjustments.append(adjustment)
             elif "adjustment_" in key:

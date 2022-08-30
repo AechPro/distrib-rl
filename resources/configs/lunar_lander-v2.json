@@ -9,7 +9,7 @@
   {
     "type" : ["ff", "continuous"],
     "init_type": "normc",
-    "init_std" : 1.4,
+    "init_std" : 1.0,
     "action_init_std": 1.0,
     "action_noise_std" : 0.0,
     "observation_clip_range" : null,
@@ -21,22 +21,15 @@
       "ff1":
       {
         "type" : "ff",
-        "num_nodes" : 128,
-        "activation_function" : "selu",
+        "num_nodes" : 64,
+        "activation_function" : "relu",
         "extra" : null
       },
       "ff2":
       {
         "type" : "ff",
-        "num_nodes" : 128,
-        "activation_function" : "selu",
-        "extra" : null
-      },
-      "ff3":
-      {
-        "type" : "ff",
-        "num_nodes" : 128,
-        "activation_function" : "selu",
+        "num_nodes" : 64,
+        "activation_function" : "relu",
         "extra" : null
       },
       "output" :
@@ -53,7 +46,7 @@
     "type" : ["ff", "discrete"],
     "init_type": "normc",
     "init_std": 1.0,
-    "action_init_std": 0.01,
+    "action_init_std": 1.0,
     "action_noise_std": 0.0,
     "observation_clip_range": null,
     "normalize_observations": false,
@@ -64,22 +57,13 @@
       {
         "type": "ff",
         "extra": null,
-        "num_nodes": 64,
-        "activation_function": "selu"
+        "num_nodes": 32,
+        "activation_function": "relu"
       },
-      "ff2":
-      {
-        "type": "ff",
-        "extra": null,
-        "num_nodes": 64,
-        "activation_function": "selu"
-      },
-
       "output":
       {
           "type": "out",
-          "extra": [2,2,2,2],
-          "num_nodes": 21,
+          "extra": null,
           "activation_function": "softmax"
       }
     }
@@ -87,14 +71,14 @@
 
   "policy_gradient_optimizer":
   {
-    "type": "dsgd",
-    "step_size": 5e-4
+    "type": "torch adam",
+    "step_size": 3e-4
   },
 
   "value_gradient_optimizer":
   {
-    "type": "dsgd",
-    "step_size": 5e-4
+    "type": "torch rmsprop",
+    "step_size": 1e-4
   },
 
   // not used at the moment
@@ -106,14 +90,14 @@
 
   "policy_optimizer":
   {
-    "gamma": 0.99,
+    "gamma": 0.995,
     "max_kl": 1.0,
-    "batch_size": 10,
+    "batch_size": 25,
     "clip_range": 0.2,
     "gae_lambda": 0.95,
-    "entropy_coef": 0.01,
-    "max_timesteps": 1e5,
-    "new_returns_proportion": 0.1
+    "entropy_coef": 0,
+    "max_timesteps": 1e80,
+    "updates_per_timestep": 0.5
   },
 
   "adaptive_omega":
@@ -127,7 +111,7 @@
 
   "experience_replay":
   {
-    "max_buffer_size": 1000
+    "max_buffer_size": 2500
   },
 
   "strategy":

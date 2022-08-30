@@ -14,7 +14,7 @@ def run_test():
     policy = FakeDiscretePolicy()
     agent = PolicyGradientsAgent(cfg)
 
-    trajectories = agent.gather_timesteps(policy, env, num_timesteps)
+    trajectories = agent.gather_timesteps(policy, 0, env, num_timesteps)
     for traj in trajectories:
         print("Trajectory:\n{}".format(traj.serialize()))
     print()

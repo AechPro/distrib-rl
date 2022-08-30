@@ -1,6 +1,9 @@
 import torch
 import time
 import numpy as np
+from distrib_rl.PolicyOptimization.LearningRateControllers.ExponentialLearningRateController import ExponentialLearningRateController
+
+from distrib_rl.PolicyOptimization.LearningRateControllers.PIDLearningRateController import PIDLearningRateController
 
 
 class DistribPPO(object):
@@ -14,11 +17,19 @@ class DistribPPO(object):
         self.gradient_builder = gradient_builder
         self.adaptive_omega = adaptive_omega
         self.value_loss_fn = torch.nn.MSELoss()
+        self.last_error = None
+        self.adjust_lr_every_batch = False
 
-        self.clip_target = cfg["lr_adjuster"]["clip_target"]
-        self.lr_rate = cfg["lr_adjuster"]["rate"]
-        self.min_lr = cfg["lr_adjuster"]["min_lr"]
-        self.max_lr = cfg["lr_adjuster"]["max_lr"]
+        if "lr_adjuster" in cfg:
+            if "Kp" in cfg["lr_adjuster"]:
+                self.lr_adjuster = PIDLearningRateController(cfg)
+                self.lr_adjust_every_batch = True
+            elif "rate" in cfg["lr_adjuster"]:
+                self.lr_adjuster = ExponentialLearningRateController(cfg)
+            else:
+                self.lr_adjuster = None
+        else:
+            self.lr_adjuster = None
 
         self.is_torch_optimizer = "torch" in cfg["policy_gradient_optimizer"]["type"]
 
@@ -45,6 +56,7 @@ class DistribPPO(object):
         mean_divergence = 0
         mean_val_loss = 0
         clip_fractions = []
+        lr_report = 0
 
         batches = exp.get_all_batches_shuffled()
 
@@ -72,7 +84,11 @@ class DistribPPO(object):
                     kl = kl.mean().detach().cpu().item()
 
                     # From the stable-baselines3 implementation of PPO.
-                    clip_fractions.append(torch.mean((torch.abs(ratio - 1) > clip_range).float()).item())
+                    clip_fraction = torch.mean((torch.abs(ratio - 1) > clip_range).float()).item()
+                    clip_fractions.append(clip_fraction)
+
+                    if self.lr_adjuster is not None and self.adjust_lr_every_batch:
+                        lr_report += self.lr_adjuster.adjust(self.policy_optimizer, clip_fraction)
 
                 loss = policy_loss - entropy * ent_coef
                 loss.backward()
@@ -107,7 +123,11 @@ class DistribPPO(object):
         mean_val_loss /= n_iterations
         mean_clip = np.mean(clip_fractions)
 
-        lr_report = self.adjust_learning_rate(mean_clip)
+        if self.adjust_lr_every_batch:
+            lr_report /= n_iterations
+        elif self.lr_adjuster is not None:
+            lr_report = self.lr_adjuster.adjust(self.policy_optimizer, mean_clip)
+
 
         self.n_epochs += 1
         self.cumulative_model_updates += n_updates
@@ -124,44 +144,3 @@ class DistribPPO(object):
                   }
 
         return report
-
-    def adjust_learning_rate(self, mean_clip):
-        policy_optimizer = self.policy_optimizer
-        clip_target = self.clip_target
-        rate = self.lr_rate
-        min_lr = self.min_lr
-        max_lr = self.max_lr
-        n = 0
-        mean_lr = 0
-        lr_report = 0
-        if mean_clip > clip_target:
-            if self.is_torch_optimizer:
-
-                for group in policy_optimizer.torch_optimizer.param_groups:
-                    if "lr" in group.keys():
-                        group["lr"] /= rate
-                        group["lr"] = min(max(group["lr"], min_lr), max_lr)
-                        mean_lr += group["lr"]
-                        n += 1
-                lr_report = mean_lr / n
-            else:
-                policy_optimizer.step_size /= rate
-                policy_optimizer.step_size = min(max(policy_optimizer.step_size, min_lr), max_lr)
-                lr_report = policy_optimizer.step_size
-
-        elif mean_clip < clip_target:
-            if self.is_torch_optimizer:
-                for group in policy_optimizer.torch_optimizer.param_groups:
-                    if "lr" in group.keys():
-                        group["lr"] *= rate
-                        group["lr"] = min(max(group["lr"], min_lr), max_lr)
-                        mean_lr += group["lr"]
-                        n += 1
-                lr_report = mean_lr / n
-
-            else:
-                policy_optimizer.step_size *= rate
-                policy_optimizer.step_size = min(max(policy_optimizer.step_size, min_lr), max_lr)
-                lr_report = policy_optimizer.step_size
-
-        return lr_report

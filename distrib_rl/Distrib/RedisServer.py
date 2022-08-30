@@ -24,6 +24,10 @@ class RedisServer(object):
         self.accumulated_sps = 0
         self.steps_per_second = 0
         self._message_serializer = MessageSerializer()
+        self.current_epoch = 0
+
+        # TODO: hardcoded for now, but should be made configurable in the future
+        self.max_policy_age = float("inf")
 
     def connect(self, clear_existing=False, new_server_instance=True):
         ip = os.environ.get("REDIS_HOST", default='localhost')
@@ -39,26 +43,28 @@ class RedisServer(object):
 
     def get_n_timesteps(self, n):
         self._update_buffer()
-        while self.available_timesteps < n:
-            self._update_buffer()
-            time.sleep(0.01)
-
         n_collected = 0
-        buffer = self.internal_buffer
         returns = []
 
         while n_collected < n:
-            ret = buffer.pop(-1)
-            trajectory, num_timesteps = ret
-            returns.append(trajectory)
-            n_collected += num_timesteps
+            while self.available_timesteps < n - n_collected:
+                self._update_buffer()
+                time.sleep(0.01)
+
+
+            ret = self.internal_buffer.pop(-1)
+            trajectory, num_timesteps, policy_epoch = ret
+
+            if self.current_epoch - policy_epoch <= self.max_policy_age:
+                returns.append(trajectory)
+                n_collected += num_timesteps
 
         self.available_timesteps -= n_collected
         return returns
 
     def get_up_to_n_timesteps(self, n):
         self._update_buffer()
-        if self.available_timesteps == 0:
+        if len(self.internal_buffer) == 0:
             return []
 
         n_collected = 0
@@ -67,9 +73,10 @@ class RedisServer(object):
 
         while len(buffer) > 0 and n_collected < n:
             ret = buffer.pop(-1)
-            trajectory, num_timesteps = ret
-            returns.append(trajectory)
-            n_collected += num_timesteps
+            trajectory, num_timesteps, policy_epoch = ret
+            if self.current_epoch - policy_epoch <= self.max_policy_age:
+                returns.append(trajectory)
+                n_collected += num_timesteps
 
         self.available_timesteps -= n_collected
         return returns
@@ -88,6 +95,8 @@ class RedisServer(object):
 
     def push_update(self, policy_params, val_params, strategy_frames, strategy_history, current_epoch):
         red = self.redis
+
+        self.current_epoch = current_epoch
 
         packed_policy = self._message_serializer.pack(policy_params)
         packed_val = self._message_serializer.pack(val_params)
@@ -152,19 +161,19 @@ class RedisServer(object):
         returns = self._atomic_pop_all(RedisKeys.CLIENT_EXPERIENCE_KEY)
         collected_timesteps = 0
         for trajectories in returns:
-            for serialized_trajectory in trajectories:
+            for serialized_trajectory, policy_epoch in trajectories:
                 n_timesteps = len(serialized_trajectory[0])
                 collected_timesteps += n_timesteps
-                self.internal_buffer.append((serialized_trajectory, n_timesteps))
+                self.internal_buffer.append((serialized_trajectory, n_timesteps, policy_epoch))
+
         self.available_timesteps += collected_timesteps
 
         self._update_sps(collected_timesteps)
         self._trim_buffer()
 
     def _trim_buffer(self):
-        while self.max_queue_size < self.available_timesteps:
+        while self.max_queue_size < len(self.internal_buffer):
             ret = self.internal_buffer.pop(0)
-            self.available_timesteps -= ret[1]
             del ret
 
     def _update_sps(self, collected_timesteps):
