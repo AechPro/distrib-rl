@@ -1,0 +1,14 @@
+name: Formatting Check
+
+on: [push, pull_request]
+
+jobs:
+  formatting-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: psf/black@stable
+        with:
+          options: "--check"
+          src: "./distrib_rl"
+          version: "22.6.0"
