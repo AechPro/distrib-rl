@@ -21,6 +21,9 @@ class RedisClient(object):
 
         self.redis = Redis(host=ip, port=port, password=password)
 
+    def increment_timesteps(self, timesteps):
+        self.redis.incrby(redis_keys.SERVER_CUMULATIVE_TIMESTEPS_KEY, timesteps)
+
     def push_data(self, key, data):
         red = self.redis
         packed_data = self._message_serializer.pack(data)

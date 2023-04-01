@@ -34,13 +34,16 @@ class Server(object):
         self.base_directory = ""
         self.terminal_conditions = {}
         self.epoch = 0
+        self.last_ts_measure_time = time.perf_counter()
+        self.last_measured_ts = 0
+        self.steps_per_second = None
 
     def train(self):
         while not self.is_done():
             self.step()
 
     def step(self):
-        t1 = time.time()
+        t1 = time.perf_counter()
         self.update()
         self.opponent_selector.submit_policy(self.policy.get_trainable_flat())
         self.strategy_optimizer.update()
@@ -50,7 +53,7 @@ class Server(object):
         if self.epoch_info["ts_consumed"] > 0:
             self.adaptive_omega.step(self.policy_reward)
 
-        self.epoch_info["epoch_time"] = time.time() - t1
+        self.epoch_info["epoch_time"] = time.perf_counter() - t1
         self.epoch_info["epoch"] = self.epoch
 
         self.epoch_info["mean_policy_reward"] = self.policy_reward
@@ -58,18 +61,29 @@ class Server(object):
         self.epoch += 1
 
         if self.epoch_info["ts_consumed"] > 0:
-            self.server.redis.set(
-                redis_keys.SERVER_CUMULATIVE_TIMESTEPS_KEY, self.cumulative_ts
-            )
+            # self.server.redis.set(
+            #     redis_keys.SERVER_CUMULATIVE_TIMESTEPS_KEY, self.cumulative_ts
+            # )
+
+            current_ts = float(self.server.redis.get(redis_keys.SERVER_CUMULATIVE_TIMESTEPS_KEY))
+            current_time = time.perf_counter()
+            sps = (current_ts - self.last_measured_ts) / (current_time - self.last_ts_measure_time)
+            self.last_measured_ts = current_ts
+            self.last_ts_measure_time = current_time
+            if self.steps_per_second is None:
+                self.steps_per_second = sps
+            else:
+                self.steps_per_second = self.steps_per_second*0.9 + sps*0.1
+
             self.server.redis.set(
                 redis_keys.RUNNING_REWARD_MEAN_KEY, float(self.exp_manager.rew_mean)
             )
             self.server.redis.set(
                 redis_keys.RUNNING_REWARD_STD_KEY, float(self.exp_manager.rew_std)
             )
-            self.epoch_info["steps_per_second"] = int(
-                round(self.exp_manager.steps_per_second)
-            )
+
+            self.epoch_info["steps_per_second"] = int(round(self.steps_per_second))
+
             self.report_epoch()
 
         self.epoch_info.clear()

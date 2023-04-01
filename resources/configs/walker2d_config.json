@@ -94,7 +94,7 @@
   "policy_gradient_optimizer":
   {
     "type": "torch adam",
-    "step_size":  1e-4
+    "step_size":  3e-4
   },
 
   "novelty_gradient_optimizer":
@@ -115,13 +115,12 @@
     "gamma": 0.99,
     "max_kl": 1.0,
     "n_epochs": 10,
-    "batch_size": 64,
+    "batch_size": 5000,
     "clip_range": 0.2,
     "gae_lambda": 0.95,
     "entropy_coef": 0.0,
     "eps_per_eval": 1,
     "max_timesteps": 1e6,
-    "timesteps_per_update": 5000,
     "new_returns_proportion": 0.1,
     "value_updates_per_batch": 10
   },

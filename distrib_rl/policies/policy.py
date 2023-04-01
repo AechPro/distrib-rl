@@ -88,7 +88,7 @@ class Policy(nn.Module):
         return self.flat
 
     def set_trainable_flat(self, flat):
-        tensor = torch.as_tensor(flat, dtype=torch.float32).to(self.device)
+        tensor = torch.as_tensor(flat.copy(), dtype=torch.float32).to(self.device)
         torch.nn.utils.vector_to_parameters(tensor, self.parameters())
         self.get_trainable_flat(force_update=True)
 

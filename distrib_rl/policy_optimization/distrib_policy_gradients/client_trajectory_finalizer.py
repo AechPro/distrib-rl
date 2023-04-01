@@ -100,6 +100,7 @@ class ClientTrajectoryFinalizer(Process):
                 self.client.push_data(
                     redis_keys.CLIENT_EXPERIENCE_KEY, self.trajectories_to_send
                 )
+                self.client.increment_timesteps(self.total_timesteps)
 
                 t2 = time.perf_counter()
 
@@ -115,7 +116,7 @@ class ClientTrajectoryFinalizer(Process):
                     "packed and pushed {} trajectories containing {} timesteps in {:7.5f}s ({:.2f} sps)".format(
                         len(self.trajectories_to_send),
                         self.total_timesteps,
-                        t2 - t1,
+                        seconds,
                         steps_per_second,
                     )
                 )

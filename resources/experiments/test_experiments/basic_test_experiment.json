@@ -1,6 +1,6 @@
 {
-  "experiment_name" : "walker2d",
-  "config_file" : "walker2d_config.json",
+  "experiment_name" : "distrib_rl_test",
+  "config_file" : "lunar_lander-v2.json",
   "num_trials_per_adjustment" : 2,
   "steps_per_save" : 20,
 

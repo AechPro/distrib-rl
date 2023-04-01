@@ -5,6 +5,8 @@
   "env_id": "Walker2d-v2",
   "agent": {"type" : "pg"},
 
+
+
   "value_estimator":
   {
     "type" : ["ff", "continuous"],

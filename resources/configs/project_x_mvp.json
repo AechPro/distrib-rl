@@ -2,20 +2,18 @@
   "device": "cuda:0",
   "seed": 123,
   "custom_envs": [
-    "distrib_rl.Environments.Custom.RocketLeague"
+    "rlgym_distrib_rl_wrapper"
   ],
   "env_id": "RocketLeague-v0",
   "agent": {"type" : "marl"},
-  "log_to_wandb": true,
-  "load_prev_weights": {
-    "path": "C:\\projects\\distrib-rl\\data\\experiments_backup\\Rocket League Test\\policy_optimizer_batch_size_100000.0\\0",
-    "epoch": 55601
-  },
+  "log_to_wandb": false,
+
   "wandb": {
     "project": "project-x",
     "group": "Project X",
     "name": "long-running-mvp-1"
   },
+
   "value_estimator":
   {
     "type" : ["ff", "continuous"],
@@ -65,6 +63,7 @@
       }
     }
   },
+
   "policy":
   {
     "type" : ["ff", "discrete"],
@@ -162,7 +161,7 @@
 
   "experience_replay":
   {
-    "max_buffer_size": 400000
+    "max_buffer_size": 1000000
   },
 
   "strategy":
@@ -175,6 +174,7 @@
   },
 
   "env_kwargs": {
+    "copy_gamestate_every_step": false,
     "tick_skip": 8,
     "team_size": 2,
     "game_speed": 100,
@@ -199,9 +199,9 @@
               "concede": -100.0,
               "team_goal": 100.0,
               "touch": 0.5,
-              "shot": 50.0,
-              "save": 75.0,
-              "demo": 25.0,
+              "shot": 50,
+              "save": 75,
+              "demo": 25,
               "boost_pickup": 0.1
             }
           }

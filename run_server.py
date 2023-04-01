@@ -12,7 +12,7 @@ import traceback
 
 def main():
     if len(sys.argv) == 1:
-        experiment_path = "resources/experiments/test_experiments/walker2d_config.json"
+        experiment_path = "resources/experiments/test_experiments/basic_test_experiment.json"
     if len(sys.argv) == 2:
         experiment_path = sys.argv[1]
         if not os.path.exists(experiment_path):

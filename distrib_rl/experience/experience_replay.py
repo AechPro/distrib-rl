@@ -59,7 +59,7 @@ class ExperienceReplay(object):
 
         self.reward_stats.increment(future_rewards, len(future_rewards))
         self.actions = torch.cat(
-            (self.actions, torch.as_tensor(actions, dtype=torch.float32)), 0
+            (self.actions, torch.as_tensor(actions,dtype=torch.float32)), 0
         )
         self.log_probs = torch.cat(
             (self.log_probs, torch.as_tensor(log_probs, dtype=torch.float32)), 0
